@@ -128,7 +128,7 @@ import {
           }).then((willDelete) => {
             if (willDelete) {
               axios
-                .delete("http://localhost:4000/addstaffmember/delete_staffmember", {
+                .delete("http://64.225.8.160:4000/addstaffmember/delete_staffmember", {
                   data: { _id: id },
                 })
                 .then((response) => {

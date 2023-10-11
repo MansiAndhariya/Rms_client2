@@ -178,7 +178,7 @@ const AddWorkorder = () => {
   useEffect(() => {
     if (id) {
       axios
-        .get(`http://localhost:4000/workorder/workorder_summary/${id}`)
+        .get(`http://64.225.8.160:4000/workorder/workorder_summary/${id}`)
         .then((response) => {
           const vendorData = response.data.data;
           setWorkOrderData(vendorData); // Use vendorData here
@@ -254,7 +254,7 @@ const AddWorkorder = () => {
       if (id === undefined) {
         // Create the work order
         const workOrderRes = await axios.post(
-          "http://localhost:4000/workorder/workorder",
+          "http://64.225.8.160:4000/workorder/workorder",
           values
         );
 
@@ -263,7 +263,7 @@ const AddWorkorder = () => {
           console.log(workOrderRes.data);
           // Use the work order data from the response to create the notification
           const notificationRes = await axios.post(
-            "http://localhost:4000/notification/notification",
+            "http://64.225.8.160:4000/notification/notification",
             {
               workorder: {
                 vendor_name: selectedVendor,
@@ -280,7 +280,7 @@ const AddWorkorder = () => {
           console.error("Work Order Error:", workOrderRes.data);
         }
       } else {
-        const editUrl = `http://localhost:4000/workorder/workorder/${id}`;
+        const editUrl = `http://64.225.8.160:4000/workorder/workorder/${id}`;
         const res = await axios.put(editUrl, values);
         handleResponse(res);
       }
@@ -343,7 +343,7 @@ const AddWorkorder = () => {
 
   React.useEffect(() => {
     // Make an HTTP GET request to your Express API endpoint
-    fetch("http://localhost:4000/rentals/allproperty")
+    fetch("http://64.225.8.160:4000/rentals/allproperty")
       .then((response) => response.json())
       .then((data) => {
         if (data.statusCode === 200) {
@@ -363,7 +363,7 @@ const AddWorkorder = () => {
     setVendorsName();
 
     // Make an HTTP GET request to your Express API endpoint
-    fetch("http://localhost:4000/addstaffmember/find_staffmember")
+    fetch("http://64.225.8.160:4000/addstaffmember/find_staffmember")
       .then((response) => response.json())
       .then((data) => {
         if (data.statusCode === 200) {

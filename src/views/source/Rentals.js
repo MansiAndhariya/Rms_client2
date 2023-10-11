@@ -225,7 +225,7 @@ const [image, setImage] = useState("");
 //   const dataArray = new FormData();
 //   dataArray.append("b_video", file);
 
-//   let url = "http://localhost:4000/upload"; // Replace with your server URL
+//   let url = "http://64.225.8.160:4000/upload"; // Replace with your server URL
 //   axios
 //     .post(url, dataArray, {
 //       headers: {
