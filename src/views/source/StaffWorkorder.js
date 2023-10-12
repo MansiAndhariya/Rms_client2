@@ -42,7 +42,7 @@ const StaffWorkOrder = () => {
     };
     // auth post method
     let res = await axios.post(
-      "http://64.225.8.160:4000/register/auth",
+      "http://localhost:4000/register/auth",
       { purpose: "validate access" },
       authConfig
     );
@@ -66,7 +66,7 @@ React.useEffect(() => {
       }
 
       const response = await axios.get(
-        `http://64.225.8.160:4000/workorder/workorder_summary/${id}`
+        `http://localhost:4000/workorder/workorder_summary/${id}`
       );
 
       console.log("API Response:", response.data.data);

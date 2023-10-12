@@ -403,35 +403,7 @@ const Leaseing = () => {
   const [file, setFile] = useState("");
   let navigate = useNavigate();
 
-  // const handleSubmit = async (values) => {
-  //   values["rental_adress"] = selectedPropertyType;
-  //   values["leasing_agent"] = selectedAgent;
-  //   values["account_name "] = selectedAccount;
-  //   values["lease_type"] = selectedLeaseType;
-  //   values["rent_cycle"] = selectedRentCycle;
-  //   values["account"] = selectedAccount;
-  //   values["onetime_account"] = selectedOneTimeAccount;
-  //   values["recuringfrequency"] = selectedFrequency;
-  //   values["upload_file"] = file;
-  //   values["recuring_account"] = selectedRecuringAccount;
 
-  //   console.log(values, "values");
-  //   try {
-  //     // values["property_type"] = localStorage.getItem("propertyType");
-  //     const res = await axios.post(
-  //       "http://64.225.8.160:4000/tenant/tenant",
-  //       values
-  //     );
-  //     if (res.data.statusCode === 200) {
-  //       swal("", res.data.message, "success");
-  //       navigate("/admin/TenantsTable");
-  //     } else {
-  //       swal("", res.data.message, "error");
-  //     }
-  //   } catch (error) {
-  //     console.log(error);
-  //   }
-  // };
 
   const handleAdd = async (values) => {
     values["account_name "] = selectedAccount;
@@ -443,7 +415,7 @@ const Leaseing = () => {
     try {
       // values["property_type"] = localStorage.getItem("propertyType");
       const res = await axios.post(
-        "http://64.225.8.160:4000/addaccount/addaccount",
+        "http://localhost:4000/addaccount/addaccount",
         values
       );
       if (res.data.statusCode === 200) {
@@ -540,7 +512,7 @@ const Leaseing = () => {
 
   useEffect(() => {
     // Make an HTTP GET request to your Express API endpoint
-    fetch("http://64.225.8.160:4000/rentals/property")
+    fetch("http://localhost:4000/rentals/property")
       .then((response) => response.json())
       .then((data) => {
         if (data.statusCode === 200) {
@@ -558,7 +530,7 @@ const Leaseing = () => {
 
   const fetchingAccountNames = async () => {
     console.log("fetching account names");
-    fetch("http://64.225.8.160:4000/addaccount/find_accountname")
+    fetch("http://localhost:4000/addaccount/find_accountname")
       .then((response) => response.json())
       .then((data) => {
         if (data.statusCode === 200) {
@@ -577,7 +549,7 @@ const Leaseing = () => {
 
   const fetchingRecAccountNames = async () => {
     console.log("fetching rec accounr names");
-    fetch("http://64.225.8.160:4000/recurringAcc/find_accountname")
+    fetch("http://localhost:4000/recurringAcc/find_accountname")
       .then((response) => response.json())
       .then((data) => {
         if (data.statusCode === 200) {
@@ -596,7 +568,7 @@ const Leaseing = () => {
 
   const fetchingOneTimeCharges = async () => {
     console.log("fetcjhiine pne rime charges");
-    fetch("http://64.225.8.160:4000/onetimecharge/find_accountname")
+    fetch("http://localhost:4000/onetimecharge/find_accountname")
       .then((response) => response.json())
       .then((data) => {
         if (data.statusCode === 200) {
@@ -632,7 +604,7 @@ const Leaseing = () => {
 
   // useEffect(() => {
   //   // Make an HTTP GET request to your Express API endpoint
-  //   fetch("http://64.225.8.160:4000/addaccount/find_accountname")
+  //   fetch("http://localhost:4000/addaccount/find_accountname")
   //     .then((response) => response.json())
   //     .then((data) => {
   //       if (data.statusCode === 200) {
@@ -651,7 +623,7 @@ const Leaseing = () => {
 
   useEffect(() => {
     // Make an HTTP GET request to your Express API endpoint
-    fetch("http://64.225.8.160:4000/addagent/find_agentname")
+    fetch("http://localhost:4000/addagent/find_agentname")
       .then((response) => response.json())
       .then((data) => {
         if (data.statusCode === 200) {
@@ -689,7 +661,7 @@ const Leaseing = () => {
 
   useEffect(() => {
     // Make an HTTP GET request to your Express API endpoint
-    fetch("http://64.225.8.160:4000/tenant/tenant")
+    fetch("http://localhost:4000/tenant/tenant")
       .then((response) => response.json())
       .then((data) => {
         if (data.statusCode === 200) {
@@ -718,7 +690,7 @@ const Leaseing = () => {
       };
       // auth post method
       let res = await axios.post(
-        "http://64.225.8.160:4000/register/auth",
+        "http://localhost:4000/register/auth",
         { purpose: "validate access" },
         authConfig
       );
@@ -854,7 +826,7 @@ const Leaseing = () => {
   useEffect(() => {
     if (id) {
       axios
-        .get(`http://64.225.8.160:4000/tenant/tenant_summary/${id}`)
+        .get(`http://localhost:4000/tenant/tenant_summary/${id}`)
         .then((response) => {
           const laesingdata = response.data.data;
           setleasingData(leasingData);
@@ -1007,7 +979,7 @@ const Leaseing = () => {
       console.log(id, "id from parameter");
       if (id === undefined) {
         const res = await axios.post(
-          "http://64.225.8.160:4000/tenant/tenant",
+          "http://localhost:4000/tenant/tenant",
           values
         );
         if (res.data.statusCode === 200) {
@@ -1018,7 +990,7 @@ const Leaseing = () => {
         }
         handleResponse(res);
       } else {
-        const editUrl = `http://64.225.8.160:4000/tenant/tenant/${id}`;
+        const editUrl = `http://localhost:4000/tenant/tenant/${id}`;
         console.log(values, "updated values");
         const res = await axios.put(editUrl, values);
         handleResponse(res);

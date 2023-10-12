@@ -57,7 +57,7 @@ const AddStaffMember = () => {
   //   try {
   //     // values["property_type"] = selectedProperty;
   //     const res = await axios.post(
-  //       "http://64.225.8.160:4000/addstaffmember/addstaffmember",
+  //       "http://localhost:4000/addstaffmember/addstaffmember",
   //       values
   //     );
 
@@ -85,7 +85,7 @@ const AddStaffMember = () => {
     };
     // auth post method
     let res = await axios.post(
-      "http://64.225.8.160:4000/register/auth",
+      "http://localhost:4000/register/auth",
       { purpose: "validate access" },
       authConfig
     );
@@ -142,7 +142,7 @@ React.useEffect(() => {
     if (id) {
       axios
         .get(
-          `http://64.225.8.160:4000/addstaffmember/staffmember_summary/${id}`
+          `http://localhost:4000/addstaffmember/staffmember_summary/${id}`
         )
         .then((response) => {
           const staffMamberdata = response.data.data;
@@ -169,12 +169,12 @@ React.useEffect(() => {
     try {
       if (id === undefined) {
         const res = await axios.post(
-          "http://64.225.8.160:4000/addstaffmember/addstaffmember",
+          "http://localhost:4000/addstaffmember/addstaffmember",
           values
         );
         handleResponse(res);
       } else {
-        const editUrl = `http://64.225.8.160:4000/addstaffmember/staffmember/${id}`;
+        const editUrl = `http://localhost:4000/addstaffmember/staffmember/${id}`;
         const res = await axios.put(editUrl, values);
         handleResponse(res);
       }

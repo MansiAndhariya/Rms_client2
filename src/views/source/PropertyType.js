@@ -38,7 +38,7 @@ import Cookies from 'universal-cookie';
 
 const PropertyType = () => {
   const {id} = useParams();
-  let [propertyData, setPropertyData] = useState();
+  let [propertyData, setPropertyData] = useState([]);
   const [open, setOpen] = React.useState(false);
   const [isEditDialogOpen, setEditDialogOpen] = React.useState(false);
   const [editingProperty, setEditingProperty] = useState([]) //niche set null karyu hatu
@@ -54,7 +54,7 @@ const PropertyType = () => {
   const [selectedProperty, setSelectedProperty] = React.useState("");
   
   // let getPropertyData = async () => {
-  //   let responce = await axios.get("http://64.225.8.160:4000/newproparty/newproparty");
+  //   let responce = await axios.get("http://localhost:4000/newproparty/newproparty");
   //   setPropertyData(responce.data.data);
   // };
 
@@ -87,7 +87,7 @@ const PropertyType = () => {
     };
     // auth post method
     let res = await axios.post(
-      "http://64.225.8.160:4000/register/auth",
+      "http://localhost:4000/register/auth",
       { purpose: "validate access" },
       authConfig
     );
@@ -107,7 +107,7 @@ React.useEffect(() => {
   const getPropertyData = async () => {
     try {
       const response = await axios.get(
-        "http://64.225.8.160:4000/newproparty/newproparty"
+        "http://localhost:4000/newproparty/newproparty"
       );
       setLoader(false);
       setPropertyData(response.data.data);
@@ -120,7 +120,7 @@ React.useEffect(() => {
   //   var handleSubmit = async (values) => {
   //    // values["createAt"] = moment(new Date()).format("YYYY-MM-DD, HH:mm:ss");
   //     let response = await axios.post(
-  //       "http://64.225.8.160:4000/newproparty/newproparty",
+  //       "http://localhost:4000/newproparty/newproparty",
   //       values
   //     );
   //     if (response.data.statusCode === 200) {
@@ -135,7 +135,7 @@ React.useEffect(() => {
   //   handleSubmit = async (values) => {
   //     //values["upadateAt"] = moment(new Date()).format("YYYY-MM-DD, HH:mm:ss");
   //     let response = await axios.put(
-  //       "http://64.225.8.160:4000/newproparty/newproparty" + id,
+  //       "http://localhost:4000/newproparty/newproparty" + id,
   //       values
   //     );
   //     if (response.data.statusCode === 200) {
@@ -147,7 +147,7 @@ React.useEffect(() => {
   // }
   const editPropertyData = async (id, updatedData) => {
     try {
-      const editUrl = `http://64.225.8.160:4000/newproparty/proparty-type/${id}`;
+      const editUrl = `http://localhost:4000/newproparty/proparty-type/${id}`;
       console.log("Edit URL:", editUrl);
       console.log("Property ID:", id);
       console.log("Updated Data:", updatedData); // Log the updated data for debugging
@@ -181,15 +181,20 @@ React.useEffect(() => {
     }).then((willDelete) => {
       if (willDelete) {
         axios
-          .delete("http://64.225.8.160:4000/newproparty/newproparty/", {
+          .delete("http://localhost:4000/newproparty/newproparty/", {
             data: { _id: id },
           })
+
           .then((response) => {
+            console.log(response.data)
             if (response.data.statusCode === 200) {
-              swal("Success!", response.data.message, "success");
+              swal("Success!", "Property Type deleted successfully!", "success");
               getPropertyData();
+            } else if (response.data.statusCode === 201) {
+              // Handle the case where property is already assigned
+              swal("Warning!", "Property Type already assigned. Deletion not allowed.", "warning");
             } else {
-              swal("", response.data.message, "error");
+              swal("error", response.data.message, "error");
             }
           })
           .catch((error) => {
@@ -201,6 +206,8 @@ React.useEffect(() => {
     });
   };
   
+
+   
 
   //  //   auto form fill up in edit
   //  let seletedEditData = async (datas) => {
@@ -305,90 +312,7 @@ React.useEffect(() => {
           </div>
         </Row>
       </Container>
-      <Dialog
-        open={isEditDialogOpen}
-        onClose={closeEditDialog}
-        maxWidth="sm"
-        fullWidth
-      >
-        <DialogTitle style={{ background: "#F0F8FF" }}>Update</DialogTitle><br/>
-        <DialogContent style={{ width: "100%", maxWidth: "500px" }}>
-          
-        <FormGroup>
-            <label className="form-control-label" htmlFor="input-property">
-              What is the property type?
-            </label>
-            <br />
-            
-            <Dropdown isOpen={dropdownOpen} toggle={toggle}>
-              <DropdownToggle caret>
-                {editingProperty.property_type || 'Property Type'}
-              </DropdownToggle>
-              <DropdownMenu>
-                <DropdownItem onClick={() => handlePropertyTypeChange("Residential")}>
-                  Residential
-                </DropdownItem>
-                <DropdownItem onClick={() => handlePropertyTypeChange("Commercial")}>
-                  Commercial
-                </DropdownItem>
-              </DropdownMenu>
-            </Dropdown>
-            {/* <Select
-              fullWidth
-              id="input-protype"
-              name="property_type"
-              value={editingProperty?.property_type || ""} // Set the selected value
-              onChange={(e) => {
-                const newValue = e.target.value;
-                setEditingProperty((prev) => ({
-                  ...prev,
-                  property_type: newValue,
-                }));
-              }}
-            >
-              <MenuItem value="Residential">Residential</MenuItem>
-              <MenuItem value="Commercial">Commercial</MenuItem>
-            </Select> */}
-
-         
-          </FormGroup><br/><br/>
-            
-          <FormGroup>
-            <label className="form-control-label" htmlFor="input-property">
-              What is the property sub type?
-            </label>
-            <br />
-            
-            <Input
-              className="form-control-alternative"
-              id="input-protype"
-              type="text"
-              name="propertysub_type"
-              value={editingProperty?.propertysub_type || ""}
-              onChange={(e) => {
-              const newValue = e.target.value;
-              setEditingProperty((prev) => ({
-                ...prev,
-                propertysub_type: newValue,
-              }));
-            }}
-            />
-          </FormGroup>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={closeEditDialog} >Cancel</Button>
-          <Button
-            onClick={() => {
-              // Handle the update logic here
-              editPropertyData(editingProperty._id, editingProperty);
-              // closeEditDialog();
-            }}
-            color="primary"
-          >
-            Update
-          </Button>
-        </DialogActions>
-      </Dialog>
+     
     </>
   );
 };

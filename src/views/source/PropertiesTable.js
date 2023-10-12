@@ -43,7 +43,7 @@ const PropertiesTables = () => {
     };
     // auth post method
     let res = await axios.post(
-      "http://64.225.8.160:4000/register/auth",
+      "http://localhost:4000/register/auth",
       { purpose: "validate access" },
       authConfig
     );
@@ -63,7 +63,7 @@ React.useEffect(() => {
   const getRentalsData = async () => {
     try {
       const response = await axios.get(
-        "http://64.225.8.160:4000/rentals/rentals"
+        "http://localhost:4000/rentals/rentals"
       );
       setRentalsData(response.data.data);
       setLoader(false);
@@ -83,7 +83,7 @@ React.useEffect(() => {
     }).then((willDelete) => {
       if (willDelete) {
         axios
-          .delete("http://64.225.8.160:4000/rentals/rentals/", {
+          .delete("http://localhost:4000/rentals/rentals/", {
             data: { _id: id },
           })
           .then((response) => {

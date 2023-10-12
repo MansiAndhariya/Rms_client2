@@ -125,7 +125,7 @@ const AddGeneralLedger = () => {
   };
 
   useEffect(() => {
-    fetch("http://64.225.8.160:4000/rentals/allproperty")
+    fetch("http://localhost:4000/rentals/allproperty")
       .then((response) => response.json())
       .then((data) => {
         if (data.statusCode === 200) {
@@ -140,7 +140,7 @@ const AddGeneralLedger = () => {
   }, []);
 
   useEffect(() => {
-    fetch("http://64.225.8.160:4000/addaccount/find_accountname")
+    fetch("http://localhost:4000/addaccount/find_accountname")
       .then((response) => response.json())
       .then((data) => {
         if (data.statusCode === 200) {
@@ -181,7 +181,7 @@ const AddGeneralLedger = () => {
       };
   
       const response = await axios.post(
-        "http://64.225.8.160:4000/ledger/ledger",
+        "http://localhost:4000/ledger/ledger",
         updatedValues
       );
   

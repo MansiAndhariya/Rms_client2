@@ -199,7 +199,7 @@ const Rentals = () => {
       };
       // auth post method
       let res = await axios.post(
-        "http://64.225.8.160:4000/register/auth",
+        "http://localhost:4000/register/auth",
         { purpose: "validate access" },
         authConfig
       );
@@ -225,7 +225,7 @@ const [image, setImage] = useState("");
 //   const dataArray = new FormData();
 //   dataArray.append("b_video", file);
 
-//   let url = "http://64.225.8.160:4000/upload"; // Replace with your server URL
+//   let url = "http://localhost:4000/upload"; // Replace with your server URL
 //   axios
 //     .post(url, dataArray, {
 //       headers: {
@@ -289,7 +289,7 @@ const [image, setImage] = useState("");
   //     values['staffMember'] =  selectedUser;
 
   //     const res = await axios.post(
-  //       "http://64.225.8.160:4000/rentals/rentals",
+  //       "http://localhost:4000/rentals/rentals",
   //       values
   //     );
 
@@ -383,7 +383,7 @@ const [image, setImage] = useState("");
       "selectedPhotoresPreview"
     );
     // Make an HTTP GET request to your Express API endpoint
-    fetch("http://64.225.8.160:4000/newproparty/propropartytype")
+    fetch("http://localhost:4000/newproparty/propropartytype")
       .then((response) => response.json())
       .then((data) => {
         if (data.statusCode === 200) {
@@ -401,7 +401,7 @@ const [image, setImage] = useState("");
 
   useEffect(() => {
     // Make an HTTP GET request to your Express API endpoint
-    fetch("http://64.225.8.160:4000/addstaffmember/find_staffmember")
+    fetch("http://localhost:4000/addstaffmember/find_staffmember")
       .then((response) => response.json())
       .then((data) => {
         if (data.statusCode === 200) {
@@ -422,7 +422,7 @@ const [image, setImage] = useState("");
   useEffect(() => {
     if (id) {
       axios
-        .get(`http://64.225.8.160:4000/rentals/rentals_summary/${id}`)
+        .get(`http://localhost:4000/rentals/rentals_summary/${id}`)
         .then((response) => {
           const propertysData = response.data.data;
           setRentalsData(rentalsData); // Update state with the fetched data
@@ -482,12 +482,12 @@ const [image, setImage] = useState("");
       values["staffMember"] = selectedUser;
       if (id === undefined) {
         const res = await axios.post(
-          "http://64.225.8.160:4000/rentals/rentals",
+          "http://localhost:4000/rentals/rentals",
           values
         );
         handleResponse(res);
       } else {
-        const editUrl = `http://64.225.8.160:4000/rentals/rentals/${id}`;
+        const editUrl = `http://localhost:4000/rentals/rentals/${id}`;
         const res = await axios.put(editUrl, values);
         handleResponse(res);
       }

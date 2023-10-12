@@ -24,7 +24,7 @@ const RentRollDetail = () => {
   const getTenantData = async () => {
     try {
       const response = await axios.get(
-        `http://64.225.8.160:4000/tenant/tenant_summary/${id}`
+        `http://localhost:4000/tenant/tenant_summary/${id}`
       );
       console.log(response.data.data);
       setTenantDetails(response.data.data);
@@ -53,7 +53,7 @@ const RentRollDetail = () => {
     };
     // auth post method
     let res = await axios.post(
-      "http://64.225.8.160:4000/register/auth",
+      "http://localhost:4000/register/auth",
       { purpose: "validate access" },
       authConfig
     );

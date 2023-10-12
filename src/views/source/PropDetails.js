@@ -25,7 +25,7 @@ const PropDetails = () => {
 
   const getRentalsData = async () => {
     try {
-      const response = await axios.get(`http://64.225.8.160:4000/rentals/rentals_summary/${id}`);
+      const response = await axios.get(`http://localhost:4000/rentals/rentals_summary/${id}`);
       setpropertyDetails(response.data.data);
       setLoading(false);
     } catch (error) {
@@ -52,7 +52,7 @@ const PropDetails = () => {
     };
     // auth post method
     let res = await axios.post(
-      "http://64.225.8.160:4000/register/auth",
+      "http://localhost:4000/register/auth",
       { purpose: "validate access" },
       authConfig
     );

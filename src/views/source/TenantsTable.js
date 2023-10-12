@@ -37,7 +37,7 @@ const TenantsTable = ({ tenantDetails }) => {
 
   let navigate = useNavigate();
   let getTenantsDate = async () => {
-    let responce = await axios.get("http://64.225.8.160:4000/tenant/tenant");
+    let responce = await axios.get("http://localhost:4000/tenant/tenant");
     setLoader(false);
     setTenantsDate(responce.data.data);
   };
@@ -57,7 +57,7 @@ const TenantsTable = ({ tenantDetails }) => {
       };
       // auth post method
       let res = await axios.post(
-        "http://64.225.8.160:4000/register/auth",
+        "http://localhost:4000/register/auth",
         { purpose: "validate access" },
         authConfig
       );
@@ -86,7 +86,7 @@ const TenantsTable = ({ tenantDetails }) => {
     }).then((willDelete) => {
       if (willDelete) {
         axios
-          .delete("http://64.225.8.160:4000/tenant/tenant", {
+          .delete("http://localhost:4000/tenant/tenant", {
             data: { _id: id },
           })
           .then((response) => {
@@ -138,7 +138,7 @@ const TenantsTable = ({ tenantDetails }) => {
       let tenantData = tenantDetails;
       if (!tenantData || !tenantData._id) {
         const response = await axios.get(
-          `http://64.225.8.160:4000/tenant/tenant_summary/${tenantId}`
+          `http://localhost:4000/tenant/tenant_summary/${tenantId}`
         );
         tenantData = response.data.data;
       }

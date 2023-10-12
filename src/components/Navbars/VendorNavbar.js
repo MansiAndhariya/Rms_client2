@@ -66,7 +66,7 @@ const VendorNavbar = (props) => {
   const getVendorDetails = async () => {
       try {
         const response = await axios.get(
-          `http://64.225.8.160:4000/vendor/vendor_summary/${cookie_id}`
+          `http://localhost:4000/vendor/vendor_summary/${cookie_id}`
         );
         console.log(response.data.data)
         setVendorDetails(response.data.data);
@@ -91,7 +91,7 @@ const VendorNavbar = (props) => {
   };
 
   useEffect(() => {
-    fetch(`http://64.225.8.160:4000/notification/vendornotification/${vendor_name}`)
+    fetch(`http://localhost:4000/notification/vendornotification/${vendor_name}`)
       .then((response) => response.json())
       .then((data) => {
         if (data.statusCode === 200) {
@@ -117,7 +117,7 @@ const VendorNavbar = (props) => {
 
   const navigateToDetails = (workorder_id) => {
     // Make a DELETE request to delete the notification
-    axios.delete(`http://64.225.8.160:4000/notification/notification/${workorder_id}`)
+    axios.delete(`http://localhost:4000/notification/notification/${workorder_id}`)
       .then((response) => {
         if (response.status === 200) {
           // Notification deleted successfully, now update the state to remove it from the list

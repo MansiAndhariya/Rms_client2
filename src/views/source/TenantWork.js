@@ -87,7 +87,7 @@ const TenantWork = () => {
     };
     // auth post method
     let res = await axios.post(
-      "http://64.225.8.160:4000/register/auth",
+      "http://localhost:4000/register/auth",
       { purpose: "validate access" },
       authConfig
     );
@@ -107,7 +107,7 @@ React.useEffect(() => {
   const getTenantData = async () => {
     try {
       const response = await axios.get(
-        `http://64.225.8.160:4000/tenant/tenant_summary/${cookie_id}`
+        `http://localhost:4000/tenant/tenant_summary/${cookie_id}`
       );
     //   console.log(response.data.data.rental_adress, "this is my data");
       setTenantDetails(response.data.data);
@@ -127,7 +127,7 @@ React.useEffect(() => {
 
   const getRentalData = async () => {
           try {
-            const response = await axios.get(`http://64.225.8.160:4000/workorder/workorder/${rental_adress}`);
+            const response = await axios.get(`http://localhost:4000/workorder/workorder/${rental_adress}`);
             setWorkData(response.data.data); 
             setLoader(false);
           } 
@@ -138,7 +138,7 @@ React.useEffect(() => {
 
   React.useEffect(() => {
     if (rental_adress) {
-        console.log("url......",`http://64.225.8.160:4000/workorder/workorder/${rental_adress}`)
+        console.log("url......",`http://localhost:4000/workorder/workorder/${rental_adress}`)
         getRentalData();
     }
     //console.log(rental_adress)

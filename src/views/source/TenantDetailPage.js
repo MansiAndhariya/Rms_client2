@@ -33,7 +33,7 @@ const TenantDetailPage = () => {
     };
     // auth post method
     let res = await axios.post(
-      "http://64.225.8.160:4000/register/auth",
+      "http://localhost:4000/register/auth",
       { purpose: "validate access" },
       authConfig
     );
@@ -53,7 +53,7 @@ React.useEffect(() => {
   const getTenantData = async () => {
     try {
       const response = await axios.get(
-        `http://64.225.8.160:4000/tenant/tenant_summary/${id}`
+        `http://localhost:4000/tenant/tenant_summary/${id}`
       );
       setTenantDetails(response.data.data);
       setLoading(false);
