@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useParams } from 'react-router-dom';
-import axios from 'axios';
-import Header from 'components/Headers/Header';
+import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useParams } from "react-router-dom";
+import axios from "axios";
+import Header from "components/Headers/Header";
 import {
   Card,
   CardHeader,
@@ -13,7 +13,7 @@ import {
   Table,
   Button,
 } from "reactstrap";
-import Cookies from 'universal-cookie';
+import Cookies from "universal-cookie";
 
 const PropDetails = () => {
   const { id } = useParams();
@@ -25,11 +25,13 @@ const PropDetails = () => {
 
   const getRentalsData = async () => {
     try {
-      const response = await axios.get(`http://localhost:4000/rentals/rentals_summary/${id}`);
+      const response = await axios.get(
+        `http://localhost:4000/rentals/rentals_summary/${id}`
+      );
       setpropertyDetails(response.data.data);
       setLoading(false);
     } catch (error) {
-      console.error('Error fetching tenant details:', error);
+      console.error("Error fetching tenant details:", error);
       setError(error);
       setLoading(false);
     }
@@ -44,30 +46,30 @@ const PropDetails = () => {
   // Check Authe(token)
   let chackAuth = async () => {
     if (cookies.get("token")) {
-      let  authConfig = {
+      let authConfig = {
         headers: {
-        Authorization: `Bearer ${cookies.get("token")}`,
-        token: cookies.get("token"),
-      },
-    };
-    // auth post method
-    let res = await axios.post(
-      "http://localhost:4000/register/auth",
-      { purpose: "validate access" },
-      authConfig
-    );
-    if (res.data.statusCode !== 200) {
-      // cookies.remove("token");
+          Authorization: `Bearer ${cookies.get("token")}`,
+          token: cookies.get("token"),
+        },
+      };
+      // auth post method
+      let res = await axios.post(
+        "http://localhost:4000/register/auth",
+        { purpose: "validate access" },
+        authConfig
+      );
+      if (res.data.statusCode !== 200) {
+        // cookies.remove("token");
+        navigate("/auth/login");
+      }
+    } else {
       navigate("/auth/login");
     }
-  } else {
-    navigate("/auth/login");
-  }
-};
+  };
 
-React.useEffect(() => {
-  chackAuth();
-}, [cookies.get("token")]);
+  React.useEffect(() => {
+    chackAuth();
+  }, [cookies.get("token")]);
 
   return (
     <>
@@ -77,9 +79,7 @@ React.useEffect(() => {
         <Row>
           <Col xs="12" sm="6">
             <FormGroup className="">
-              <h1 style={{ color: 'white' }}>
-                Property Details
-              </h1>
+              <h1 style={{ color: "white" }}>Property Details</h1>
             </FormGroup>
           </Col>
           <Col className="text-right" xs="12" sm="6">
@@ -93,7 +93,8 @@ React.useEffect(() => {
               Back
             </Button>
           </Col>
-        </Row><br />
+        </Row>
+        <br />
         {/* Table */}
         <Row>
           <div className="col">
@@ -102,7 +103,11 @@ React.useEffect(() => {
                 <h3 className="mb-0">Summary</h3>
               </CardHeader>
               <div className="table-responsive">
-                <Table className="align-items-center table-flush" responsive style={{ width: "100%" }}>
+                <Table
+                  className="align-items-center table-flush"
+                  responsive
+                  style={{ width: "100%" }}
+                >
                   {loading ? (
                     <tbody>
                       <tr>
@@ -119,14 +124,84 @@ React.useEffect(() => {
                     <>
                       <tbody>
                         <tr>
-                          <th colSpan="2" className="text-primary text-lg">Property Details</th>
+                          <th colSpan="2" className="text-primary text-lg">
+                            Property Details
+                          </th>
                         </tr>
                         <tr>
                           <td className="font-weight-bold text-md">Image</td>
-                          <td><img src={propertyDetails.propertyres_image || propertyDetails.property_image} alt="Property Details" style={{ maxWidth: '8rem' }} /></td>
+                          <td>
+                            <div
+                              style={{
+                                display: "flex",
+                                flexWrap: "wrap",
+                              }}
+                            >
+                              <div
+                                style={{
+                                  width: "100%", // Expands to full width by default
+                                }}
+                              >
+                                Residential:
+                                {propertyDetails.propertyres_image &&
+                                  propertyDetails.propertyres_image.length >
+                                    0 &&
+                                  propertyDetails.propertyres_image.map(
+                                    (propertyres_image, index) => (
+                                      <img
+                                        key={index}
+                                        src={propertyres_image}
+                                        alt="Property Details"
+                                        style={{
+                                          width: "100px",
+                                          height: "100px",
+                                          // objectFit: "cover",
+                                          margin: "10px",
+                                          borderRadius: "10px",
+                                          "@media (max-width: 768px)": {
+                                            width: "100%", // Full-width on smaller screens
+                                          },
+                                        }}
+                                      />
+                                    )
+                                  )}
+                              </div>
+                              <div
+                                style={{
+                                  width: "100%", // Expands to full width by default
+                                }}
+                              >
+                                Commercial:
+                                {propertyDetails.property_image &&
+                                  propertyDetails.property_image.length > 0 &&
+                                  propertyDetails.property_image.map(
+                                    (property_image, index) => (
+                                      <img
+                                        key={index}
+                                        src={property_image}
+                                        alt="Property Details"
+                                        style={{
+                                          width: "100px",
+                                          height: "100px",
+                                          // objectFit: "cover",
+                                          margin: "10px",
+                                          borderRadius: "10px",
+                                          "@media (max-width: 768px)": {
+                                            width: "100%", // Full-width on smaller screens
+                                          },
+                                        }}
+                                      />
+                                    )
+                                  )}
+                              </div>
+                            </div>
+                          </td>
                         </tr>
+
                         <tr>
-                          <td className="font-weight-bold text-md">Property Type</td>
+                          <td className="font-weight-bold text-md">
+                            Property Type
+                          </td>
                           <td>{propertyDetails.property_type || "N/A"}</td>
                         </tr>
                         <tr>
@@ -149,73 +224,130 @@ React.useEffect(() => {
 
                       <tbody>
                         <tr>
-                          <th colSpan="2" className="text-primary text-lg">Rental Owner Details</th>
+                          <th colSpan="2" className="text-primary text-lg">
+                            Rental Owner Details
+                          </th>
                         </tr>
                         <tr>
-                          <td className="font-weight-bold text-md">First Name</td>
-                          <td>{propertyDetails.rentalOwner_firstName || "N/A"}</td>
+                          <td className="font-weight-bold text-md">
+                            First Name
+                          </td>
+                          <td>
+                            {propertyDetails.rentalOwner_firstName || "N/A"}
+                          </td>
                         </tr>
                         <tr>
-                          <td className="font-weight-bold text-md">Last Name</td>
-                          <td>{propertyDetails.rentalOwner_lastName || "N/A"}</td>
+                          <td className="font-weight-bold text-md">
+                            Last Name
+                          </td>
+                          <td>
+                            {propertyDetails.rentalOwner_lastName || "N/A"}
+                          </td>
                         </tr>
                         <tr>
-                          <td className="font-weight-bold text-md">Company Name</td>
-                          <td>{propertyDetails.rentalOwner_companyName || "N/A"}</td>
+                          <td className="font-weight-bold text-md">
+                            Company Name
+                          </td>
+                          <td>
+                            {propertyDetails.rentalOwner_companyName || "N/A"}
+                          </td>
                         </tr>
                         <tr>
                           <td className="font-weight-bold text-md">E-Mail</td>
-                          <td>{propertyDetails.rentalOwner_primaryEmail || "N/A"}</td>
+                          <td>
+                            {propertyDetails.rentalOwner_primaryEmail || "N/A"}
+                          </td>
                         </tr>
                         <tr>
-                          <td className="font-weight-bold text-md">Phone Number</td>
-                          <td>{propertyDetails.rentalOwner_phoneNumber || "N/A"}</td>
+                          <td className="font-weight-bold text-md">
+                            Phone Number
+                          </td>
+                          <td>
+                            {propertyDetails.rentalOwner_phoneNumber || "N/A"}
+                          </td>
                         </tr>
                         <tr>
-                          <td className="font-weight-bold text-md">Home Number</td>
-                          <td>{propertyDetails.rentalOwner_homeNumber || "N/A"}</td>
+                          <td className="font-weight-bold text-md">
+                            Home Number
+                          </td>
+                          <td>
+                            {propertyDetails.rentalOwner_homeNumber || "N/A"}
+                          </td>
                         </tr>
                         <tr>
-                          <td className="font-weight-bold text-md">Business Number</td>
-                          <td>{propertyDetails.rentalOwner_businessNumber || "N/A"}</td>
+                          <td className="font-weight-bold text-md">
+                            Business Number
+                          </td>
+                          <td>
+                            {propertyDetails.rentalOwner_businessNumber ||
+                              "N/A"}
+                          </td>
                         </tr>
                       </tbody>
 
                       <tbody>
                         <tr>
-                          <th colSpan="2" className="text-primary text-lg">Account Details</th>
+                          <th colSpan="2" className="text-primary text-lg">
+                            Account Details
+                          </th>
                         </tr>
                         <tr>
-                          <td className="font-weight-bold text-md">Operating Account</td>
-                          <td>{propertyDetails.rentalOwner_operatingAccount || "N/A"}</td>
+                          <td className="font-weight-bold text-md">
+                            Operating Account
+                          </td>
+                          <td>
+                            {propertyDetails.rentalOwner_operatingAccount ||
+                              "N/A"}
+                          </td>
                         </tr>
                         <tr>
-                          <td className="font-weight-bold text-md">Property Reserve</td>
-                          <td>{propertyDetails.rentalOwner_propertyReserve || "N/A"}</td>
+                          <td className="font-weight-bold text-md">
+                            Property Reserve
+                          </td>
+                          <td>
+                            {propertyDetails.rentalOwner_propertyReserve ||
+                              "N/A"}
+                          </td>
                         </tr>
                       </tbody>
 
                       <tbody>
                         <tr>
-                          <th colSpan="2" className="text-primary text-lg">Staff Details</th>
+                          <th colSpan="2" className="text-primary text-lg">
+                            Staff Details
+                          </th>
                         </tr>
                         <tr>
-                          <td className="font-weight-bold text-md">Staff Member</td>
+                          <td className="font-weight-bold text-md">
+                            Staff Member
+                          </td>
                           <td>{propertyDetails.staffMember || "N/A"}</td>
                         </tr>
                       </tbody>
 
                       <tbody>
                         <tr>
-                          <th colSpan="2" className="text-primary text-lg">Unit Details</th>
+                          <th colSpan="2" className="text-primary text-lg">
+                            Unit Details
+                          </th>
                         </tr>
                         <tr>
                           <td className="font-weight-bold text-md">Unit</td>
-                          <td>{propertyDetails.rental_units || propertyDetails.rentalcom_units || "N/A"}</td>
+                          <td>
+                            {propertyDetails.rental_units ||
+                              propertyDetails.rentalcom_units ||
+                              "N/A"}
+                          </td>
                         </tr>
                         <tr>
-                          <td className="font-weight-bold text-md">Unit Address</td>
-                          <td>{propertyDetails.rental_unitsAdress || propertyDetails.rentalcom_unitsAdress || "N/A"}</td>
+                          <td className="font-weight-bold text-md">
+                            Unit Address
+                          </td>
+                          <td>
+                            {propertyDetails.rental_unitsAdress ||
+                              propertyDetails.rentalcom_unitsAdress ||
+                              "N/A"}
+                          </td>
                         </tr>
                         <tr>
                           <td className="font-weight-bold text-md">Bed</td>
@@ -227,7 +359,11 @@ React.useEffect(() => {
                         </tr>
                         <tr>
                           <td className="font-weight-bold text-md">SQFT</td>
-                          <td>{propertyDetails.rental_soft || propertyDetails.rentalcom_soft || "N/A"}</td>
+                          <td>
+                            {propertyDetails.rental_soft ||
+                              propertyDetails.rentalcom_soft ||
+                              "N/A"}
+                          </td>
                         </tr>
                       </tbody>
                     </>

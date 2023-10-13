@@ -1,5 +1,5 @@
 import GeneralLedgerHeader from "components/Headers/GeneralLedgerHeader";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   Button,
   Card,
@@ -38,7 +38,8 @@ const GeneralLedger = () => {
   const [daterangedropdownOpen, setDateRangeDropdownOpen] =
     React.useState(false);
   const [selecteddaterange, setSelectedDateRAnge] = React.useState("Select");
-
+  const [GeneralLedgerData, setGeneralLedgerData] = useState();
+  const [loader, setLoader] = React.useState(true);
   const toggle1 = () => setproDropdownOpen((prevState) => !prevState);
   const toggle2 = () => setbankDropdownOpen((prevState) => !prevState);
   const toggle3 = () => setDateRangeDropdownOpen((prevState) => !prevState);
@@ -117,19 +118,46 @@ const GeneralLedger = () => {
   React.useEffect(() => {
     chackAuth();
   }, [cookies.get("token")]);
-
+  const getGeneralLedgerData = async () => {
+    try {
+      const response = await axios.get("http://localhost:4000/ledger/ledger");
+      setLoader(false);
+      setGeneralLedgerData(response.data.data);
+      console.log(response.data.data);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    }
+  };
+  useEffect(() => {
+    getGeneralLedgerData();
+  }, []);
+  function formatDateWithoutTime(dateString) {
+    if (!dateString) return "";
+    const date = new Date(dateString);
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    return `${month}-${day}-${year}`;
+  }
   return (
     <>
       <GeneralLedgerHeader />
-      {/* Page content */}
+      <style>
+        {`
+    .custom-date-picker {
+      background-color: white;
+    }
+  `}
+      </style>
+      ;
       <Container className="mt--7" fluid>
         <Row>
           <Col className="order-xl-1" xl="12">
             <Card className="bg-secondary shadow">
-              <CardHeader className="bg-white border-0">
+              <CardHeader className="border-0">
                 <Form>
                   <Row>
-                    <Col lg="2">
+                    <Col lg="2.5" style={{ marginRight: "20px" }}>
                       <FormGroup>
                         <label
                           className="form-control-label"
@@ -157,7 +185,7 @@ const GeneralLedger = () => {
                         </Dropdown>
                       </FormGroup>
                     </Col>
-                    <Col lg="2">
+                    <Col lg="2.5" style={{ marginRight: "20px" }}>
                       <FormGroup>
                         <label
                           className="form-control-label"
@@ -170,7 +198,15 @@ const GeneralLedger = () => {
                           <DropdownToggle caret style={{ width: "100%" }}>
                             {selectedAccount} &nbsp;&nbsp;&nbsp;&nbsp;
                           </DropdownToggle>
-                          <DropdownMenu style={{ width: "100%" }}>
+                          <DropdownMenu
+                            style={{
+                              zIndex: 999,
+                              maxHeight: "280px",
+                              // overflowX: "hidden",
+                              overflowY: "auto",
+                              width: "100%",
+                            }}
+                          >
                             <DropdownItem header style={{ color: "blue" }}>
                               Income Account
                             </DropdownItem>
@@ -188,7 +224,7 @@ const GeneralLedger = () => {
                         </Dropdown>
                       </FormGroup>
                     </Col>
-                    <Col lg="2">
+                    <Col lg="2.5" style={{ marginRight: "20px" }}>
                       <FormGroup>
                         <label
                           className="form-control-label"
@@ -255,7 +291,7 @@ const GeneralLedger = () => {
                       </FormGroup>
                     </Col>
                     <Col lg="2">
-                      <FormGroup>
+                      <FormGroup style={{ marginRight: "-15px" }}>
                         <label
                           className="form-control-label"
                           htmlFor="input-unitadd"
@@ -270,21 +306,21 @@ const GeneralLedger = () => {
                           name="from"
                         /> */}
                         <LocalizationProvider dateAdapter={AdapterDayjs}>
-                            <DatePicker
-                              className="form-control-alternative"
-                              name="from"
-                              slotProps={{ textField: { size: 'small' } }}
-                              id="input-unitadd"
-                              placeholder="3000"
-                              dateFormat="MM-dd-yyyy"
-                              views={['year', 'month', 'day']}
-                              // onBlur={leaseFormik.handleBlur}
-                              // selected={leaseFormik.values.recuringnextDue_date} // Use 'selected' prop instead of 'value'
-                              // onChange={(date) => {
-                              //   leaseFormik.setFieldValue("recuringnextDue_date", date); // Update the Formik field value
-                              // }}
-                            />
-                          </LocalizationProvider>
+                          <DatePicker
+                            className="form-control-alternative custom-date-picker"
+                            name="from"
+                            slotProps={{ textField: { size: "small" } }}
+                            id="input-unitadd"
+                            placeholder="3000"
+                            dateFormat="MM-dd-yyyy"
+                            views={["year", "month", "day"]}
+                            // onBlur={leaseFormik.handleBlur}
+                            // selected={leaseFormik.values.recuringnextDue_date} // Use 'selected' prop instead of 'value'
+                            // onChange={(date) => {
+                            //   leaseFormik.setFieldValue("recuringnextDue_date", date); // Update the Formik field value
+                            // }}
+                          />
+                        </LocalizationProvider>
                       </FormGroup>
                     </Col>
                     <Col lg="2">
@@ -295,22 +331,22 @@ const GeneralLedger = () => {
                         >
                           To
                         </label>
-                         <LocalizationProvider dateAdapter={AdapterDayjs}>
-                            <DatePicker
-                              className="form-control-alternative"
-                              name="to"
-                              slotProps={{ textField: { size: 'small' } }}
-                              id="input-unitadd"
-                              placeholder="3000"
-                              dateFormat="MM-dd-yyyy"
-                              views={['year', 'month', 'day']}
-                              // onBlur={leaseFormik.handleBlur}
-                              // selected={leaseFormik.values.recuringnextDue_date} // Use 'selected' prop instead of 'value'
-                              // onChange={(date) => {
-                              //   leaseFormik.setFieldValue("recuringnextDue_date", date); // Update the Formik field value
-                              // }}
-                            />
-                          </LocalizationProvider>
+                        <LocalizationProvider dateAdapter={AdapterDayjs}>
+                          <DatePicker
+                            className="form-control-alternative custom-date-picker"
+                            name="to"
+                            slotProps={{ textField: { size: "small" } }}
+                            id="input-unitadd"
+                            placeholder="3000"
+                            dateFormat="MM-dd-yyyy"
+                            views={["year", "month", "day"]}
+                            // onBlur={leaseFormik.handleBlur}
+                            // selected={leaseFormik.values.recuringnextDue_date} // Use 'selected' prop instead of 'value'
+                            // onChange={(date) => {
+                            //   leaseFormik.setFieldValue("recuringnextDue_date", date); // Update the Formik field value
+                            // }}
+                          />
+                        </LocalizationProvider>
                         {/* <Input
                           className="form-control-alternative"
                           id="input-unitadd"
@@ -330,7 +366,7 @@ const GeneralLedger = () => {
                           Account Type
                         </label>
                         <div>
-                          <label>
+                          <label style={{ marginRight: "20px" }}>
                             <input
                               type="radio"
                               id="radioOption1"
@@ -341,7 +377,7 @@ const GeneralLedger = () => {
                             />
                             Cash
                           </label>
-                          &nbsp;
+                         
                           <label>
                             <input
                               type="radio"
@@ -370,37 +406,46 @@ const GeneralLedger = () => {
                   </Row>
                 </Form>
               </CardHeader>
-              <CardBody>
-                <Row>
-                  <Col>
-                    <FormGroup>
-                      <div className="table-responsive">
-                        <Table
-                          className="table table-bordered"
-                          style={{
-                            borderCollapse: "collapse",
-                            border: "2px solid #ddd",
-                            overflow: "hidden",
-                          }}
-                        >
-                          <thead>
-                            <tr>
-                              <th>Date</th>
-                              <th>Property</th>
-                              <th>Name</th>
-                              <th>Description</th>
-                              <th>Amount</th>
-                              <th>Balance</th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                          </tbody>
-                        </Table>
-                      </div>
-                    </FormGroup>
-                  </Col>
-                </Row>
-              </CardBody>
+
+              <Table className="align-items-center table-flush" responsive>
+                <thead className="thead-light">
+                  <tr>
+                    <th scope="col">Date</th>
+                    <th scope="col">Property</th>
+                    <th scope="col">Account</th>
+                    <th scope="col">Credit&Debit</th>
+                    <th scope="col">Total Amount</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {GeneralLedgerData?.map((generalledger) => (
+                    <tr key={generalledger._id}>
+                      <td>
+                        {formatDateWithoutTime(generalledger.date) || "N/A"}
+                      </td>
+                      <td>{generalledger.rental_adress}</td>
+                      <td>
+                        {generalledger.entries.map((entry, index) => (
+                          <span key={index}>
+                            {entry.account}
+                            <br />
+                          </span>
+                        ))}
+                      </td>
+                      <td>
+                        {generalledger.entries.map((entry, index) => (
+                          <span key={index}>
+                            Credit: {entry.credit}
+                            &nbsp; Debit: {entry.debit}
+                            <br />
+                          </span>
+                        ))}
+                      </td>
+                      <td>{generalledger.total_amount}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </Table>
             </Card>
           </Col>
         </Row>

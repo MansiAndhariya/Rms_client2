@@ -126,7 +126,7 @@ var routes = [
   {
     path: "/StaffMember",
     name:"Add Staff Member",
-    icon: "ni ni-single-02 text-green",
+    icon: "ni ni-badge text-green",
     component: <StaffMember />,
     layout: "/admin",    
   },

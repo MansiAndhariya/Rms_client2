@@ -94,7 +94,12 @@ React.useEffect(() => {
                 "success"
               );
               getRentalsData(); // Refresh your rentals data or perform other actions
-            } else {
+            }
+            else if (response.data.statusCode === 201) {
+              swal("Warning!", "Property already assigned to Tenant!", "warning");
+              getRentalsData();
+            }  
+            else {
               swal("", response.data.message, "error");
             }
           })

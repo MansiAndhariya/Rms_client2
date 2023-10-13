@@ -343,7 +343,7 @@ const AddWorkorder = () => {
 
   React.useEffect(() => {
     // Make an HTTP GET request to your Express API endpoint
-    fetch("http://localhost:4000/rentals/allproperty")
+    fetch("http://localhost:4000/rentals/property_onrent")
       .then((response) => response.json())
       .then((data) => {
         if (data.statusCode === 200) {

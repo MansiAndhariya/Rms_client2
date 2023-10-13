@@ -29,8 +29,6 @@ import AddGenralLedgerHeader from "components/Headers/AddGenralLedgerHeader";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 
-//swal
-
 const AddGeneralLedger = () => {
   const [selectedProp, setSelectedProp] = useState("Select");
   const handlePropSelection = (propertyType) => {
@@ -125,7 +123,7 @@ const AddGeneralLedger = () => {
   };
 
   useEffect(() => {
-    fetch("http://localhost:4000/rentals/allproperty")
+    fetch("http://localhost:4000/rentals/property_onrent")
       .then((response) => response.json())
       .then((data) => {
         if (data.statusCode === 200) {
@@ -137,7 +135,7 @@ const AddGeneralLedger = () => {
       .catch((error) => {
         console.error("Network error:", error);
       });
-  }, []);
+  }, []); 
 
   useEffect(() => {
     fetch("http://localhost:4000/addaccount/find_accountname")
@@ -165,10 +163,10 @@ const AddGeneralLedger = () => {
       totalCredit += parseFloat(entries.credit);
     }
   });
-
-  const handleSubmit = async () => {
+  const handleSubmit = async (values) => {
     try {
       const updatedValues = {
+        date: values.date,
         rental_adress: selectedProp,
         attachment: file,
         total_amount: (totalDebit + totalCredit).toFixed(2),
@@ -179,12 +177,12 @@ const AddGeneralLedger = () => {
           credit: parseFloat(entry.credit),
         })),
       };
-  
+
       const response = await axios.post(
         "http://localhost:4000/ledger/ledger",
         updatedValues
       );
-  
+
       if (response.data.statusCode === 200) {
         swal("", response.data.message, "success");
         navigate("/admin/GeneralLedger");
@@ -199,7 +197,6 @@ const AddGeneralLedger = () => {
       }
     }
   };
-  
 
   const fileData = (file) => {
     const dataArray = new FormData();
@@ -223,7 +220,16 @@ const AddGeneralLedger = () => {
 
   return (
     <>
+    
       <AddGenralLedgerHeader />
+      <style>
+        {`
+    .custom-date-picker {
+      background-color: white;
+    }
+  `}
+      </style>
+      
       <Container className="mt--7" fluid>
         <Row>
           <Col className="order-xl-1" xl="12">
@@ -260,21 +266,21 @@ const AddGeneralLedger = () => {
                           value={generalledgerFormik.values.date}
                         /> */}
                         <LocalizationProvider dateAdapter={AdapterDayjs}>
-                            <DatePicker
-                              className="form-control-alternative"
-                              name="date"
-                              slotProps={{ textField: { size: 'small' } }}
-                              views={['year', 'month', 'day']}
-                              id="input-unitadd"
-                              placeholder="3000"
-                              dateFormat="MM-dd-yyyy"
-                              onBlur={generalledgerFormik.handleBlur}
-                              selected={generalledgerFormik.values.date} // Use 'selected' prop instead of 'value'
-                              onChange={(date) => {
-                                generalledgerFormik.setFieldValue("date", date); // Update the Formik field value
-                              }}
-                            />
-                          </LocalizationProvider>
+                          <DatePicker
+                            className="form-control-alternative custom-date-picker"
+                            name="date"
+                            slotProps={{ textField: { size: "small" } }}
+                            views={["year", "month", "day"]}
+                            id="input-unitadd"
+                            placeholder="3000"
+                            dateFormat="MM-dd-yyyy"
+                            onBlur={generalledgerFormik.handleBlur}
+                            selected={generalledgerFormik.values.date} // Use 'selected' prop instead of 'value'
+                            onChange={(date) => {
+                              generalledgerFormik.setFieldValue("date", date); // Update the Formik field value
+                            }}
+                          />
+                        </LocalizationProvider>
                         {generalledgerFormik.touched.date &&
                         generalledgerFormik.errors.date ? (
                           <div style={{ color: "red" }}>
@@ -298,7 +304,15 @@ const AddGeneralLedger = () => {
                           <DropdownToggle caret style={{ width: "100%" }}>
                             {selectedProp ? selectedProp : "Select"}
                           </DropdownToggle>
-                          <DropdownMenu style={{ width: "100%" }}>
+                          <DropdownMenu
+                            style={{
+                              zIndex: 999,
+                              maxHeight: "280px",
+                              // overflowX: "hidden",
+                              overflowY: "auto",
+                              width: "100%",
+                            }}
+                          >
                             {propertyData?.map((item) => (
                               <DropdownItem
                                 key={item._id}

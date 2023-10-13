@@ -51,7 +51,6 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-
 // const Rental = () => {
 //   const handleFormSubmit = () => {
 //     swal("Success!", "Rental owner added successfully", "success");
@@ -69,6 +68,7 @@ const Rentals = () => {
   const [selectedProperties, setSelectedProperties] = useState([]);
   const [selectAllChecked, setSelectAllChecked] = useState(false);
   const [selectedState, setSelectedState] = useState("United State");
+  const [selectedProp, setSelectedProp] = useState([]);
   const [loading, setIsLoading] = useState(true);
 
   const toggle1 = () => setstateDropdownOpen((prevState) => !prevState);
@@ -78,6 +78,10 @@ const Rentals = () => {
   const handleStateSelection = (value) => {
     setSelectedState(value);
     setstateDropdownOpen(true);
+  };
+
+  const handlePropSelection = (value) => {
+    setSelectedProp(value);
   };
 
   // const handleClickOpen = () => {
@@ -161,10 +165,18 @@ const Rentals = () => {
   //     console.log(error);
   //   }
   // };
-  
   async function handleSubmit(values) {
     try {
       values["rentalOwner_country"] = selectedState;
+
+      // Fetch the complete property objects for the selected property IDs
+      const selectedPropertyData = propertyData.filter((property) =>
+        selectedProperties.includes(property._id)
+      );
+
+      // Assign the selected property data to the "rentalOwner_properties" field
+      values["rentalOwner_properties"] = selectedPropertyData;
+
       if (id === undefined) {
         const res = await axios.post(
           "http://localhost:4000/rentalowner/rentalowner",
@@ -184,6 +196,7 @@ const Rentals = () => {
       // Handle the error and display an error message to the user if necessary.
     }
   }
+
   function handleResponse(response) {
     if (response.status === 200) {
       navigate("/admin/RentalownerTable");
@@ -218,6 +231,7 @@ const Rentals = () => {
       rentalOwner_comments: "",
       text_identityType: "",
       textpayer_id: "",
+      rentalOwner_properties: [],
     },
     validationSchema: yup.object({
       // property_type: yup.string().required("Required"),
@@ -276,7 +290,7 @@ const Rentals = () => {
 
   React.useEffect(() => {
     // Fetch data from your API
-    fetch("http://localhost:4000/rentals/allproperty")
+    fetch("http://localhost:4000/rentals/property_onrent")
       .then((response) => response.json())
       .then((data) => {
         console.log("Data from API:", data); // Log the response data
@@ -352,6 +366,8 @@ const Rentals = () => {
             rentalOwner_companyName:
               rentalOwnerdata.rentalOwner_companyName || "",
             textpayer_id: rentalOwnerdata.textpayer_id || "",
+            rentalOwner_properties:
+              rentalOwnerdata.rentalOwner_properties || "",
           });
         })
         .catch((error) => {
@@ -362,6 +378,14 @@ const Rentals = () => {
   }, [id]);
   return (
     <>
+      <style>
+        {`
+    .custom-date-picker {
+      background-color: white;
+    }
+  `}
+      </style>
+      ;
       <RentalownerHeder />
       {/* Page content */}
       <Container className="mt--7" fluid>
@@ -372,7 +396,7 @@ const Rentals = () => {
                 <Row className="align-items-center">
                   <Col xs="8">
                     <h3 className="mb-0">
-                      {id ? "Edit Reantal Owner" : "New Rental Owner"}
+                      {id ? "Edit Reantal Owner" : "New Reantal Owner"}
                     </h3>
                   </Col>
                   <Col className="text-right" xs="4"></Col>
@@ -473,15 +497,19 @@ const Rentals = () => {
 
                           <Row>
                             <Col>
-                              <FormGroup style={{ display: "flex", flexDirection: "column" }}>
+                              <FormGroup
+                                // style={{
+                                //   display: "flex",
+                                //   flexDirection: "column",
+                                // }}
+                              >
                                 <label
                                   className="form-control-label"
                                   htmlFor="input-unitadd"
-                                  
                                 >
                                   Date Of Birth*
                                 </label>
-
+                                <br/>
                                 {/* <Input
                                   id="birth_date"
                                   placeholder="Date Of Birth"
@@ -491,22 +519,28 @@ const Rentals = () => {
                                   value={rentalsFormik.values.birth_date}
                                   
                                 /> */}
-                                <LocalizationProvider dateAdapter={AdapterDayjs}>
-                            <DatePicker
-                              className="form-control-alternative"
-                              name="birth_date"
-                              slotProps={{ textField: { size: 'small' } }}
-                              id="birth_date"
-                              views={['year', 'month', 'day']}
-                              placeholder="3000"
-                              dateFormat="MM-dd-yyyy"
-                              onBlur={rentalsFormik.handleBlur}
-                              selected={rentalsFormik.values.birth_date} // Use 'selected' prop instead of 'value'
-                              onChange={(date) => {
-                                rentalsFormik.setFieldValue("birth_date", date); // Update the Formik field value
-                              }}
-                            />
-                          </LocalizationProvider>
+                                <LocalizationProvider
+                                  dateAdapter={AdapterDayjs}
+                                  style={{ backgroundColor: "white" }}
+                                >
+                                  <DatePicker
+                                    className="form-control-alternative custom-date-picker"
+                                    name="birth_date"
+                                    slotProps={{ textField: { size: "small" } }}
+                                    id="birth_date"
+                                    views={["year", "month", "day"]}
+                                    placeholder="3000"
+                                    dateFormat="MM-dd-yyyy"
+                                    onBlur={rentalsFormik.handleBlur}
+                                    selected={rentalsFormik.values.birth_date}
+                                    onChange={(date) => {
+                                      rentalsFormik.setFieldValue(
+                                        "birth_date",
+                                        date
+                                      );
+                                    }}
+                                  />
+                                </LocalizationProvider>
                                 {rentalsFormik.touched.birth_date &&
                                 rentalsFormik.errors.birth_date ? (
                                   <div style={{ color: "red" }}>
@@ -530,13 +564,19 @@ const Rentals = () => {
                             <br></br>
                             <Row>
                               <Col>
-                                <FormGroup style={{ display: "flex", flexDirection: "column" }}> 
+                                <FormGroup
+                                  // style={{
+                                  //   display: "flex",
+                                  //   flexDirection: "column",
+                                  // }}
+                                >
                                   <label
                                     className="form-control-label"
                                     htmlFor="input-unitadd"
                                   >
                                     Start Date *
                                   </label>
+                                  <br/>
 
                                   {/* <Input
                                     id="start_date"
@@ -546,22 +586,29 @@ const Rentals = () => {
                                     onChange={rentalsFormik.handleChange}
                                     value={rentalsFormik.values.start_date}
                                   /> */}
-                                  <LocalizationProvider dateAdapter={AdapterDayjs}>
-                            <DatePicker
-                              className="form-control-alternative"
-                              name="start_date"
-                              slotProps={{ textField: { size: 'small' } }}
-                              id="start_date"
-                              placeholder="3000"
-                              views={['year', 'month', 'day']}
-                              dateFormat="MM-dd-yyyy"
-                              onBlur={rentalsFormik.handleBlur}
-                              selected={rentalsFormik.values.start_date} // Use 'selected' prop instead of 'value'
-                              onChange={(date) => {
-                                rentalsFormik.setFieldValue("start_date", date); // Update the Formik field value
-                              }}
-                            />
-                          </LocalizationProvider>
+                                  <LocalizationProvider
+                                    dateAdapter={AdapterDayjs}
+                                  >
+                                    <DatePicker
+                                      className="form-control-alternative custom-date-picker"
+                                      name="start_date"
+                                      slotProps={{
+                                        textField: { size: "small" },
+                                      }}
+                                      id="start_date"
+                                      placeholder="3000"
+                                      views={["year", "month", "day"]}
+                                      dateFormat="MM-dd-yyyy"
+                                      onBlur={rentalsFormik.handleBlur}
+                                      selected={rentalsFormik.values.start_date} // Use 'selected' prop instead of 'value'
+                                      onChange={(date) => {
+                                        rentalsFormik.setFieldValue(
+                                          "start_date",
+                                          date
+                                        ); // Update the Formik field value
+                                      }}
+                                    />
+                                  </LocalizationProvider>
                                   {rentalsFormik.touched.start_date &&
                                   rentalsFormik.errors.start_date ? (
                                     <div style={{ color: "red" }}>
@@ -572,15 +619,21 @@ const Rentals = () => {
                               </Col>
                             </Row>
                             &nbsp; &nbsp; &nbsp;
-                            <FormGroup >
+                            <FormGroup>
                               <Row>
-                                <Col style={{ display: "flex", flexDirection: "column" }}>
+                                <Col
+                                  // style={{
+                                  //   display: "flex",
+                                  //   flexDirection: "column",
+                                  // }}
+                                >
                                   <label
                                     className="form-control-label"
                                     htmlFor="input-unitadd"
                                   >
                                     End Date *
                                   </label>
+                                  <br/>
                                   {/* <Input
                                     id="end_date"
                                     placeholder="End Date"
@@ -589,22 +642,29 @@ const Rentals = () => {
                                     onChange={rentalsFormik.handleChange}
                                     value={rentalsFormik.values.end_date}
                                   /> */}
-                                  <LocalizationProvider dateAdapter={AdapterDayjs}>
-                            <DatePicker
-                              className="form-control-alternative"
-                              name="end_date"
-                              slotProps={{ textField: { size: 'small' } }}
-                              id="end_date"
-                              placeholder="3000"
-                              views={['year', 'month', 'day']}
-                              dateFormat="MM-dd-yyyy"
-                              onBlur={rentalsFormik.handleBlur}
-                              selected={rentalsFormik.values.end_date} // Use 'selected' prop instead of 'value'
-                              onChange={(date) => {
-                                rentalsFormik.setFieldValue("end_date", date); // Update the Formik field value
-                              }}
-                            />
-                          </LocalizationProvider>
+                                  <LocalizationProvider
+                                    dateAdapter={AdapterDayjs}
+                                  >
+                                    <DatePicker
+                                      className="form-control-alternative custom-date-picker"
+                                      name="end_date"
+                                      slotProps={{
+                                        textField: { size: "small" },
+                                      }}
+                                      id="end_date"
+                                      placeholder="3000"
+                                      views={["year", "month", "day"]}
+                                      dateFormat="MM-dd-yyyy"
+                                      onBlur={rentalsFormik.handleBlur}
+                                      selected={rentalsFormik.values.end_date} // Use 'selected' prop instead of 'value'
+                                      onChange={(date) => {
+                                        rentalsFormik.setFieldValue(
+                                          "end_date",
+                                          date
+                                        ); // Update the Formik field value
+                                      }}
+                                    />
+                                  </LocalizationProvider>
                                   {rentalsFormik.touched.end_date &&
                                   rentalsFormik.errors.end_date ? (
                                     <div style={{ color: "red" }}>
@@ -1092,9 +1152,11 @@ const Rentals = () => {
                                     Burm
                                   </DropdownItem>
                                   <DropdownItem
-                                    onClick={() => handleStateSelection("chad")}
+                                    onClick={() =>
+                                      handleStateSelection("Brazil")
+                                    }
                                   >
-                                    cha
+                                    Brazil
                                   </DropdownItem>
 
                                   {/* Add more city names here */}
@@ -1308,10 +1370,24 @@ const Rentals = () => {
                                     onChange={() =>
                                       handlePropertyCheckboxChange(property._id)
                                     }
+                                    onBlur={rentalsFormik.handleBlur}
+                                    // onChange={rentalsFormik.handleChange}
+                                    // value={
+                                    //   rentalsFormik.values.rentalOwner_properties
+                                    // }
                                   />
-                                  {property.rental_adress}{" "}
+                                  {property.rental_adress}
                                   {/* Updated property name here */}
                                 </label>
+                                {rentalsFormik.touched.rentalOwner_properties &&
+                                rentalsFormik.errors.rentalOwner_properties ? (
+                                  <div style={{ color: "red" }}>
+                                    {
+                                      rentalsFormik.errors
+                                        .rentalOwner_properties
+                                    }
+                                  </div>
+                                ) : null}
                               </div>
                             ))
                           ) : (

@@ -90,7 +90,12 @@ React.useEffect(() => {
           if (response.data.statusCode === 200) {
             swal("Success!", "Vendor deleted successfully", "success");
             getVendorData();
-          } else {
+          } 
+          else if (response.data.statusCode === 201) {
+            swal("Warning!", "Vendor already assigned to workorder!", "warning");
+            getVendorData();
+          } 
+          else {
             swal("", response.data.message, "error");
           }
         } catch (error) {

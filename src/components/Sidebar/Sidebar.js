@@ -1,10 +1,15 @@
-import { useState } from "react";
+import React, { useEffect, useState } from 'react';
 import { NavLink as NavLinkRRD, Link } from "react-router-dom";
-
+import NotificationsIcon from '@mui/icons-material/Notifications';
 import { PropTypes } from "prop-types";
 import Cookies from "universal-cookie";
 import { useNavigate } from "react-router-dom";
-
+import axios from "axios";
+import Drawer from '@mui/material/Drawer';
+// import Button from '@mui/material/Button';
+import List from '@mui/material/List';
+import Divider from '@mui/material/Divider';
+import ListItem from '@mui/material/ListItem';
 // reactstrap components
 import {
   Button,
@@ -40,7 +45,11 @@ var ps;
 
 const Sidebar = (props) => {
   const [collapseOpen, setCollapseOpen] = useState();
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [notificationCount, setNotificationCount] = useState(0);
+  const [notificationData, setNotificationData] = useState([]);
 
+  let navigate = useNavigate();
   let cookies = new Cookies();
   let Logout = () => {
     cookies.remove("token");
@@ -58,11 +67,61 @@ const Sidebar = (props) => {
     setCollapseOpen((data) => !data);
   };
 
+  const handlePropertySelect = (property) => {
+    setSelectedProp(property);
+  };
+
   // closes the collapse
   const closeCollapse = () => {
     setCollapseOpen(false);
   };
 
+  const [selectedProp, setSelectedProp] = useState("Select");
+  const toggleSidebar = () => {
+    setIsSidebarOpen(!isSidebarOpen);
+  };
+
+  useEffect(() => {
+    fetch(`http://localhost:4000/notification/notification`)
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.statusCode === 200) {
+          setNotificationData(data.data);
+          setNotificationCount(data.data.length); 
+          console.log("Notification",data.data);
+         
+        } else {
+          // Handle error
+          console.error("Error:", data.message);
+        }
+      })
+      .catch((error) => {
+        // Handle network error
+        console.error("Network error:", error);
+      });
+  }, []);
+
+  const navigateToDetails = (workorder_id) => {
+    // Make a DELETE request to delete the notification
+    axios.delete(`http://localhost:4000/notification/notification/${workorder_id}`)
+      .then((response) => {
+        if (response.status === 200) {
+          // Notification deleted successfully, now update the state to remove it from the list
+          const updatedNotificationData = notificationData.filter((notification) => notification.workorder_id !== workorder_id);
+          setNotificationData(updatedNotificationData);
+          setNotificationCount(updatedNotificationData.length);
+          console.log(`Notification with workorder_id ${workorder_id} deleted successfully.`);
+        } else {
+          console.error(`Failed to delete notification with workorder_id ${workorder_id}.`);
+        }
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+      });
+  
+    // Continue with navigating to the details page
+    navigate(`/admin/workorderdetail/${workorder_id}`);
+  };
   // creates the links that appear in the left menu / Sidebar
   const createLinks = (routes) => {
     const filteredRoutes = routes.filter(
@@ -129,22 +188,28 @@ const Sidebar = (props) => {
           </NavbarBrand>
         ) : null}
         {/* User */}
+          {/* <div>
+          <Form className="navbar-search navbar-search-dark form-inline mr-3 d-none d-md-flex ml-lg-auto">
+            <FormGroup className="mb-0" onClick={toggleSidebar} style={{ cursor: 'pointer',position: 'relative' }}>
+              <NotificationsIcon style={{color:'black',fontSize:'30px'}}/>
+              {notificationCount > 0 && (
+                <div className="notification-circle" style={{position: 'absolute',top: '-15px',right: '-20px',background: 'red',borderRadius: '50%',padding: '0.1px 8px'}}>
+                  <span className="notification-count" style={{color:'white',fontSize:"13px"}}>{notificationCount}</span>
+                </div>
+              )}
+            </FormGroup>
+          </Form>
+          </div> */}
+          {/* <FormGroup className="mb-0" onClick={toggleSidebar} style={{ cursor: 'pointer',position: 'relative' }}>
+             <NotificationsIcon style={{color:'black',fontSize:'30px'}}/>
+             {notificationCount > 0 && (
+              <div className="notification-circle" style={{position: 'absolute',top: '-15px',right: '-20px',background: 'red',borderRadius: '50%',padding: '0.1px 8px'}}>
+                <span className="notification-count" style={{color:'white',fontSize:"13px"}}>{notificationCount}</span>
+              </div>
+               )}
+          </FormGroup> */}
+
         <Nav className="align-items-center d-md-none">
-          {/* <UncontrolledDropdown nav>
-            <DropdownToggle nav className="nav-link-icon">
-              <i className="ni ni-bell-55" />
-            </DropdownToggle>
-            <DropdownMenu
-              aria-labelledby="navbar-default_dropdown_1"
-              className="dropdown-menu-arrow"
-              right
-            >
-              <DropdownItem>Action</DropdownItem>
-              <DropdownItem>Another action</DropdownItem>
-              <DropdownItem divider />
-              <DropdownItem>Something else here</DropdownItem>
-            </DropdownMenu>
-          </UncontrolledDropdown> */}
           <UncontrolledDropdown nav>
             <DropdownToggle nav>
               <Media className="align-items-center">
@@ -242,7 +307,7 @@ const Sidebar = (props) => {
             {createLinks(routes)}
             <UncontrolledDropdown nav>
               <DropdownToggle nav caret>
-                <i className="ni ni-pin-3 text-orange" /> Rentals
+                <i className="ni ni-shop text-orange" /> Rentals
               </DropdownToggle>
               <DropdownMenu>
                 <DropdownItem to="/admin/propertiesTable" tag={Link}>

@@ -85,7 +85,12 @@ const Agent = () => {
             if (response.data.statusCode === 200) {
               swal("Success!", "Agent deleted successfully!", "success");
               getAgentData(); // Refresh your agent data or perform other actions
-            } else {
+            } 
+            else if (response.data.statusCode === 201) {
+              swal("Warning!", "Agent already assigned to lease!", "warning");
+              getAgentData();
+            } 
+            else {
               swal("", response.data.message, "error");
             }
           })

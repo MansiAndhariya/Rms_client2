@@ -84,9 +84,20 @@ const Rentals = () => {
     width: "100%",
     verflowY: "auto",
   };
-
+  const [propType, setPropType] = useState("");
   const handlePropSelection = (propertyType) => {
     setSelectedProp(propertyType);
+    const selectedType = Object.keys(propertyData).find((item) => {
+      return propertyData[item].some(
+        (data) => data.propertysub_type === propertyType
+      );
+    });
+
+    if (selectedType) {
+      setPropType(selectedType);
+    } else {
+      setPropType("");
+    }
   };
 
   const handleBankSelection = (value) => {
@@ -219,57 +230,94 @@ const Rentals = () => {
   // ==================================================================
 
   const { id } = useParams();
-const [image, setImage] = useState("");
+  const [commercialImage, setCommercialImage] = useState(null);
 
-// const fileData = (file) => {
-//   const dataArray = new FormData();
-//   dataArray.append("b_video", file);
+  // const fileData = (file) => {
+  //   const dataArray = new FormData();
+  //   dataArray.append("b_video", file);
 
-//   let url = "http://localhost:4000/upload"; // Replace with your server URL
-//   axios
-//     .post(url, dataArray, {
-//       headers: {
-//         "Content-Type": "multipart/form-data",
-//       },
-//     })
-//     .then((res) => {
-//       const imagePath = res?.data?.imagePath;
-//       console.log(imagePath, "imagePath");
-//       setImage(imagePath);
-//     })
-//     .catch((err) => {
-//       console.log("Error uploading image:", err);
-//     });
-// };
+  //   let url = "http://localhost:4000/upload"; // Replace with your server URL
+  //   axios
+  //     .post(url, dataArray, {
+  //       headers: {
+  //         "Content-Type": "multipart/form-data",
+  //       },
+  //     })
+  //     .then((res) => {
+  //       const imagePath = res?.data?.imagePath;
+  //       console.log(imagePath, "imagePath");
+  //       setImage(imagePath);
+  //     })
+  //     .catch((err) => {
+  //       console.log("Error uploading image:", err);
+  //     });
+  // };
 
-  const fileData = (file) => {
+  const fileData = async (file, name) => {
     //setImgLoader(true);
-    const dataArray = new FormData();
-    dataArray.append("b_video", file);
+    const allData = [];
+    const axiosRequests = [];
 
-    let url = "https://www.sparrowgroups.com/CDN/image_upload.php";
-    axios
-      .post(url, dataArray, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      })
-      .then((res) => {
-        //setImgLoader(false);
-        const imagePath = res?.data?.iamge_path; // Correct the key to "iamge_path"
-        console.log(imagePath, "imagePath");
-        setImage(imagePath);
-      })
-      .catch((err) => {
-        //setImgLoader(false);
-        console.log("Error uploading image:", err);
-      });
+    for (let i = 0; i < file.length; i++) {
+      const dataArray = new FormData();
+      dataArray.append("b_video", file[i]);
+      let url = "https://www.sparrowgroups.com/CDN/image_upload.php";
+
+      // Push the Axios request promises into an array
+      axiosRequests.push(
+        axios
+          .post(url, dataArray, {
+            headers: {
+              "Content-Type": "multipart/form-data",
+            },
+          })
+          .then((res) => {
+            //setImgLoader(false);
+            const imagePath = res?.data?.iamge_path; // Correct the key to "iamge_path"
+            console.log(imagePath, "imagePath");
+            allData.push(imagePath);
+          })
+          .catch((err) => {
+            //setImgLoader(false);
+            console.log("Error uploading image:", err);
+          })
+      );
+    }
+
+    // Wait for all Axios requests to complete before logging the data
+    await Promise.all(axiosRequests);
+    if (name === "propertyres_image") {
+      setResidentialImage(allData);
+    } else {
+      setCommercialImage(allData);
+    }
+    console.log(allData, "allData");
   };
+  // const dataArray = new FormData();
+  // dataArray.append("b_video", file);
 
-
-
-  
- 
+  // let url = "https://www.sparrowgroups.com/CDN/image_upload.php";
+  // axios
+  //   .post(url, dataArray, {
+  //     headers: {
+  //       "Content-Type": "multipart/form-data",
+  //     },
+  //   })
+  //   .then((res) => {
+  //     //setImgLoader(false);
+  //     const imagePath = res?.data?.iamge_path; // Correct the key to "iamge_path"
+  //     console.log(imagePath, "imagePath");
+  //     if (name === "propertyres_image") {
+  //       // setResidentialImage(imagePath);
+  //     } else {
+  //       // setImage(imagePath);
+  //     }
+  //     setImage(imagePath);
+  //   })
+  //   .catch((err) => {
+  //     //setImgLoader(false);
+  //     console.log("Error uploading image:", err);
+  //   });
 
   let navigate = useNavigate();
   const handleCloseButtonClick = () => {
@@ -304,16 +352,27 @@ const [image, setImage] = useState("");
   //   }
   // };
 
-  const clearSelectedPhoto = () => {
-    const selectedPhotoPreview = document.getElementById(
-      "selectedPhotoPreview"
-    );
+  const clearSelectedPhoto = (image, name) => {
+    // const selectedPhotoPreview = document.getElementById(
+    //   "selectedPhotoPreview"
+    // );
 
-    selectedPhotoPreview.src = "";
+    // selectedPhotoPreview.src = "";
 
-    const fileInput = document.getElementById("fileInput");
-    if (fileInput) {
-      fileInput.value = "";
+    // const fileInput = document.getElementById("fileInput");
+    // if (fileInput) {
+    //   fileInput.value = "";
+    // }
+    if (name === "propertyres_image") {
+      const filteredImage = residentialImage.filter((item) => {
+        return item !== image;
+      });
+      setResidentialImage(filteredImage);
+    } else {
+      const filteredImage = commercialImage.filter((item) => {
+        return item !== image;
+      });
+      setCommercialImage(filteredImage);
     }
   };
 
@@ -356,7 +415,7 @@ const [image, setImage] = useState("");
       //RESIDENTIAL
       rental_bed: "",
       rental_bath: "",
-      propertyres_image: "",
+      propertyres_image: null,
 
       rental_soft: "",
       rental_units: "",
@@ -366,7 +425,7 @@ const [image, setImage] = useState("");
       rentalcom_soft: "",
       rentalcom_units: "",
       rentalcom_unitsAdress: "",
-      property_image: "",
+      property_image: null,
     },
     validationSchema: yup.object({
       rental_adress: yup.string().required("Required"),
@@ -374,7 +433,7 @@ const [image, setImage] = useState("");
     }),
     onSubmit: (values) => {
       handleSubmit(values);
-      console.log(values, "values");
+      console.log(values, "rentals formik finmmal values");
     },
   });
 
@@ -426,7 +485,7 @@ const [image, setImage] = useState("");
         .then((response) => {
           const propertysData = response.data.data;
           setRentalsData(rentalsData); // Update state with the fetched data
-          console.log(propertysData);
+          console.log(propertysData, "properety data");
 
           setSelectedProp(propertysData.property_type || "Select");
           setSelectedbath(propertysData.rental_bath || "Select");
@@ -434,8 +493,8 @@ const [image, setImage] = useState("");
           setSelectedBank(
             propertysData.rentalOwner_operatingAccount || "Select"
           );
-          setImage(propertysData.property_image || "");
-          setImage(propertysData.propertyres_image || "");
+          setCommercialImage(propertysData.property_image || "");
+          setResidentialImage(propertysData.propertyres_image || "");
           setSelectedUser(propertysData.staffMember || "Select");
           rentalsFormik.setValues({
             rental_adress: propertysData.rental_adress || "",
@@ -470,17 +529,22 @@ const [image, setImage] = useState("");
         });
     }
   }, [id]);
-
+  const [residentialImage, setResidentialImage] = useState(null);
   async function handleSubmit(values) {
+    console.log(residentialImage, "residentialImage after submit");
+    console.log(commercialImage, "commercialImage after submit");
     try {
       values["property_type"] = selectedProp;
       values["rental_bath"] = selectedbath;
       values["rental_bed"] = selectedBad;
       values["rentalOwner_operatingAccount"] = selectedBank;
-      values["property_image"] = image;
-      values["propertyres_image"] = image;
+      values["property_image"] = commercialImage;
+      values["propertyres_image"] = residentialImage;
+      // rentalsFormik.setFieldValue("property_image", commercialImage);
+      // rentalsFormik.setFieldValue("propertyres_image", residentialImage);
       values["staffMember"] = selectedUser;
       if (id === undefined) {
+        console.log(values, "values after submit");
         const res = await axios.post(
           "http://localhost:4000/rentals/rentals",
           values
@@ -566,6 +630,7 @@ const [image, setImage] = useState("");
                                 ? selectedProp
                                 : "Select Property Type"}
                             </DropdownToggle>
+                            {console.log(propertyData, "property data")}
                             <DropdownMenu>
                               {Object.keys(propertyData).map((propertyType) => (
                                 <React.Fragment key={propertyType}>
@@ -1475,192 +1540,282 @@ const [image, setImage] = useState("");
 
                   <hr className="my-4" />
                   {/* Description */}
-                  <div className="pl-lg-4">
-                    <h6 className="heading-small text-muted mb-4">
-                      Residential Unit
-                    </h6>
-                    <FormGroup>
-                      <label
-                        className="form-control-label"
-                        htmlFor="input-address"
-                      >
-                        Enter Residential Units
-                      </label>
-                      <br />
-                      <br />
-                      <Row>
-                        <Col lg="2">
-                          <FormGroup>
-                            <label
-                              className="form-control-label"
-                              htmlFor="input-city"
-                            >
-                              Units *
-                            </label>
-                            <Input
-                              className="form-control-alternative"
-                              id="input-unit"
-                              placeholder="102"
-                              type="number"
-                              name="rental_units"
-                              onBlur={rentalsFormik.handleBlur}
-                              onChange={rentalsFormik.handleChange}
-                              value={rentalsFormik.values.rental_units}
-                            />
-                            {rentalsFormik.touched.rental_units &&
-                            rentalsFormik.errors.rental_units ? (
-                              <div style={{ color: "red" }}>
-                                {rentalsFormik.errors.rental_units}
-                              </div>
-                            ) : null}
-                          </FormGroup>
-                        </Col>
-                        <Col lg="4">
-                          <FormGroup>
-                            <label
-                              className="form-control-label"
-                              htmlFor="input-unitadd"
-                            >
-                              Unit Address *
-                            </label>
-                            <Input
-                              className="form-control-alternative"
-                              id="input-unitadd"
-                              placeholder="A12 Bhaskar Enclave, Phase 2 - 102"
-                              type="text"
-                              name="rental_unitsAdress"
-                              onBlur={rentalsFormik.handleBlur}
-                              onChange={rentalsFormik.handleChange}
-                              value={rentalsFormik.values.rental_unitsAdress}
-                            />
-                            {rentalsFormik.touched.rental_unitsAdress &&
-                            rentalsFormik.errors.rental_unitsAdress ? (
-                              <div style={{ color: "red" }}>
-                                {rentalsFormik.errors.rental_unitsAdress}
-                              </div>
-                            ) : null}
-                          </FormGroup>
-                        </Col>
-                        <Col lg="4.5">
-                          <FormGroup>
-                            <label
-                              className="form-control-label"
-                              htmlFor="input-country"
-                            >
-                              Rooms
-                            </label>
-                            <br />
-                            <div style={{ display: "flex" }}>
-                              <Dropdown
-                                isOpen={baddropdownOpen}
-                                toggle={toggle4}
+                  {propType === "Residential" && (
+                    <div className="pl-lg-4">
+                      <h6 className="heading-small text-muted mb-4">
+                        Residential Unit
+                      </h6>
+                      <FormGroup>
+                        <label
+                          className="form-control-label"
+                          htmlFor="input-address"
+                        >
+                          Enter Residential Units
+                        </label>
+                        <br />
+                        <br />
+                        <Row>
+                          <Col lg="2">
+                            <FormGroup>
+                              <label
+                                className="form-control-label"
+                                htmlFor="input-city"
                               >
-                                <DropdownToggle caret style={{ width: "100%" }}>
-                                  {selectedBad ? selectedBad : "5 Bed"}{" "}
-                                  &nbsp;&nbsp;
-                                </DropdownToggle>
-                                <DropdownMenu style={{ width: "200px" }}>
-                                  <DropdownItem
-                                    onClick={() => handleBadSelection("2 Bed")}
-                                  >
-                                    2 Bed
-                                  </DropdownItem>
-                                  <DropdownItem
-                                    onClick={() => handleBadSelection("3 Bed")}
-                                  >
-                                    3 Bed
-                                  </DropdownItem>
-                                  <DropdownItem
-                                    onClick={() => handleBadSelection("4 Bed")}
-                                  >
-                                    4 Bed
-                                  </DropdownItem>
-                                  <DropdownItem
-                                    onClick={() => handleBadSelection("5 Bed")}
-                                  >
-                                    5 Bed
-                                  </DropdownItem>
-                                  <DropdownItem
-                                    onClick={() => handleBadSelection("6 Bed")}
-                                  >
-                                    6 Bed
-                                  </DropdownItem>
-                                  <DropdownItem
-                                    onClick={() => handleBadSelection("7 Bed")}
-                                  >
-                                    7 Bed
-                                  </DropdownItem>
-                                </DropdownMenu>
-                              </Dropdown>
-                              &nbsp;
-                              <Dropdown
-                                isOpen={bathdropdownOpen}
-                                toggle={toggle5}
+                                Units *
+                              </label>
+                              <Input
+                                className="form-control-alternative"
+                                id="input-unit"
+                                placeholder="102"
+                                type="number"
+                                name="rental_units"
+                                onBlur={rentalsFormik.handleBlur}
+                                onChange={rentalsFormik.handleChange}
+                                value={rentalsFormik.values.rental_units}
+                              />
+                              {rentalsFormik.touched.rental_units &&
+                              rentalsFormik.errors.rental_units ? (
+                                <div style={{ color: "red" }}>
+                                  {rentalsFormik.errors.rental_units}
+                                </div>
+                              ) : null}
+                            </FormGroup>
+                          </Col>
+                          <Col lg="4">
+                            <FormGroup>
+                              <label
+                                className="form-control-label"
+                                htmlFor="input-unitadd"
                               >
-                                <DropdownToggle caret style={{ width: "100%" }}>
-                                  {selectedbath ? selectedbath : "5 Bath"}{" "}
-                                  &nbsp;&nbsp;
-                                </DropdownToggle>
-                                <DropdownMenu style={{ width: "200px" }}>
-                                  <DropdownItem
-                                    onClick={() => handleBathSelect("2 Bath")}
-                                  >
-                                    2 Bath
-                                  </DropdownItem>
-                                  <DropdownItem
-                                    onClick={() => handleBathSelect("3 Bath")}
-                                  >
-                                    3 Bath
-                                  </DropdownItem>
-                                  <DropdownItem
-                                    onClick={() => handleBathSelect("4 Bath")}
-                                  >
-                                    4 Bath
-                                  </DropdownItem>
-                                  <DropdownItem
-                                    onClick={() => handleBathSelect("5 Bath")}
-                                  >
-                                    5 Bath
-                                  </DropdownItem>
-                                  <DropdownItem
-                                    onClick={() => handleBathSelect("6 Bath")}
-                                  >
-                                    6 Bath
-                                  </DropdownItem>
-                                  <DropdownItem
-                                    onClick={() => handleBathSelect("7 Bath")}
-                                  >
-                                    7 Bath
-                                  </DropdownItem>
-                                </DropdownMenu>
-                              </Dropdown>
-                            </div>
-                            &nbsp;&nbsp;
-                          </FormGroup>
-                        </Col>
-                        <Col lg="2">
-                          <FormGroup>
-                            <label
-                              className="form-control-label"
-                              htmlFor="input-unitadd"
-                            >
-                              Photo
-                            </label>
-                            <span
-                              onClick={togglePhotoresDialog}
-                              style={{
-                                cursor: "pointer",
-                                fontSize: "14px",
-                                fontFamily: "monospace",
-                                color: "blue",
-                              }}
-                            >
-                              {" "}
+                                Unit Address *
+                              </label>
+                              <Input
+                                className="form-control-alternative"
+                                id="input-unitadd"
+                                placeholder="A12 Bhaskar Enclave, Phase 2 - 102"
+                                type="text"
+                                name="rental_unitsAdress"
+                                onBlur={rentalsFormik.handleBlur}
+                                onChange={rentalsFormik.handleChange}
+                                value={rentalsFormik.values.rental_unitsAdress}
+                              />
+                              {rentalsFormik.touched.rental_unitsAdress &&
+                              rentalsFormik.errors.rental_unitsAdress ? (
+                                <div style={{ color: "red" }}>
+                                  {rentalsFormik.errors.rental_unitsAdress}
+                                </div>
+                              ) : null}
+                            </FormGroup>
+                          </Col>
+                          <Col lg="4.5">
+                            <FormGroup>
+                              <label
+                                className="form-control-label"
+                                htmlFor="input-country"
+                              >
+                                Rooms
+                              </label>
                               <br />
-                              <b style={{ fontSize: "20px" }}>+</b> Add
-                            </span>
+                              <div style={{ display: "flex" }}>
+                                <Dropdown
+                                  isOpen={baddropdownOpen}
+                                  toggle={toggle4}
+                                >
+                                  <DropdownToggle
+                                    caret
+                                    style={{ width: "100%" }}
+                                  >
+                                    {selectedBad ? selectedBad : "5 Bed"}{" "}
+                                    &nbsp;&nbsp;
+                                  </DropdownToggle>
+                                  <DropdownMenu style={{ width: "200px" }}>
+                                    <DropdownItem
+                                      onClick={() =>
+                                        handleBadSelection("2 Bed")
+                                      }
+                                    >
+                                      2 Bed
+                                    </DropdownItem>
+                                    <DropdownItem
+                                      onClick={() =>
+                                        handleBadSelection("3 Bed")
+                                      }
+                                    >
+                                      3 Bed
+                                    </DropdownItem>
+                                    <DropdownItem
+                                      onClick={() =>
+                                        handleBadSelection("4 Bed")
+                                      }
+                                    >
+                                      4 Bed
+                                    </DropdownItem>
+                                    <DropdownItem
+                                      onClick={() =>
+                                        handleBadSelection("5 Bed")
+                                      }
+                                    >
+                                      5 Bed
+                                    </DropdownItem>
+                                    <DropdownItem
+                                      onClick={() =>
+                                        handleBadSelection("6 Bed")
+                                      }
+                                    >
+                                      6 Bed
+                                    </DropdownItem>
+                                    <DropdownItem
+                                      onClick={() =>
+                                        handleBadSelection("7 Bed")
+                                      }
+                                    >
+                                      7 Bed
+                                    </DropdownItem>
+                                  </DropdownMenu>
+                                </Dropdown>
+                                &nbsp;
+                                <Dropdown
+                                  isOpen={bathdropdownOpen}
+                                  toggle={toggle5}
+                                >
+                                  <DropdownToggle
+                                    caret
+                                    style={{ width: "100%" }}
+                                  >
+                                    {selectedbath ? selectedbath : "5 Bath"}{" "}
+                                    &nbsp;&nbsp;
+                                  </DropdownToggle>
+                                  <DropdownMenu style={{ width: "200px" }}>
+                                    <DropdownItem
+                                      onClick={() => handleBathSelect("2 Bath")}
+                                    >
+                                      2 Bath
+                                    </DropdownItem>
+                                    <DropdownItem
+                                      onClick={() => handleBathSelect("3 Bath")}
+                                    >
+                                      3 Bath
+                                    </DropdownItem>
+                                    <DropdownItem
+                                      onClick={() => handleBathSelect("4 Bath")}
+                                    >
+                                      4 Bath
+                                    </DropdownItem>
+                                    <DropdownItem
+                                      onClick={() => handleBathSelect("5 Bath")}
+                                    >
+                                      5 Bath
+                                    </DropdownItem>
+                                    <DropdownItem
+                                      onClick={() => handleBathSelect("6 Bath")}
+                                    >
+                                      6 Bath
+                                    </DropdownItem>
+                                    <DropdownItem
+                                      onClick={() => handleBathSelect("7 Bath")}
+                                    >
+                                      7 Bath
+                                    </DropdownItem>
+                                  </DropdownMenu>
+                                </Dropdown>
+                              </div>
+                              &nbsp;&nbsp;
+                            </FormGroup>
+                          </Col>
+                          <Col lg="2">
+                            <FormGroup>
+                              <label
+                                className="form-control-label"
+                                htmlFor="input-unitadd"
+                              >
+                                SQFT
+                              </label>
+                              <Input
+                                className="form-control-alternative"
+                                id="input-unitadd"
+                                placeholder="3000"
+                                type="number"
+                                name="rental_soft"
+                                onBlur={rentalsFormik.handleBlur}
+                                onChange={rentalsFormik.handleChange}
+                                value={rentalsFormik.values.rental_soft}
+                              />
+                              {rentalsFormik.touched.rental_soft &&
+                              rentalsFormik.errors.rental_soft ? (
+                                <div style={{ color: "red" }}>
+                                  {rentalsFormik.errors.rental_soft}
+                                </div>
+                              ) : null}
+                            </FormGroup>
+                          </Col>
+                          <Col lg="2">
+                            <FormGroup>
+                              <label
+                                className="form-control-label"
+                                htmlFor="input-unitadd"
+                              >
+                                Photo
+                              </label>
+                              <span
+                                onClick={togglePhotoresDialog}
+                                style={{
+                                  cursor: "pointer",
+                                  fontSize: "14px",
+                                  fontFamily: "monospace",
+                                  color: "blue",
+                                }}
+                              >
+                                {" "}
+                                <br />
+                                <input
+                                  type="file"
+                                  className="form-control-file d-none"
+                                  accept="image/*"
+                                  multiple
+                                  id="propertyres_image"
+                                  name="propertyres_image"
+                                  onChange={(e) => {
+                                    const file = [...e.target.files];
+                                    fileData(file, "propertyres_image");
+                                    // Update property_image field in Formik
+                                    // rentalsFormik.setFieldValue(
+                                    //   "propertyres_image",
+                                    //   file
+                                    // );
 
-                            {rentalsFormik.values.propertyres_image && (
+                                    // Update the selected photo preview
+                                    // const selectedPhotoPreview1 =
+                                    //   document.getElementById(
+                                    //     "selectedPhotoPreview1"
+                                    //   );
+                                    if (file.length > 0) {
+                                      const allImages = file.map((file) => {
+                                        return URL.createObjectURL(file);
+                                      });
+                                      setResidentialImage(allImages);
+                                      // const imageUrl =
+                                      //   URL.createObjectURL(file);
+                                      //   setResidentialImage(imageUrl);
+                                      // rentalsFormik.setFieldValue(
+                                      //   "propertyres_image",imageUrl
+                                      // )
+                                      // selectedPhotoPreview1.src = imageUrl;
+                                    } else {
+                                      // selectedPhotoPreview1.src = "";
+                                      // rentalsFormik.setFieldValue(
+                                      //   "propertyres_image",""
+                                      setResidentialImage("");
+                                      // )
+                                    }
+                                  }}
+                                />
+                                <label htmlFor="propertyres_image">
+                                  <b style={{ fontSize: "20px" }}>+</b> Add
+                                </label>
+                                {/* <b style={{ fontSize: "20px" }}>+</b> Add */}
+                              </span>
+
+                              {/* {rentalsFormik.values.propertyres_image && (
                               // <span
                               //   onClick={clearSelectedPhotores}
                               //   style={{
@@ -1679,20 +1834,9 @@ const [image, setImage] = useState("");
                                 alt="Property Details"
                                 style={{ maxWidth: "8rem", margin: "10px" }}
                               />
-                            )}
+                            )} */}
 
-                            <div className="mt-3">
-                              <img
-                                id="selectedPhotoPreview1"
-                                src=""
-                                alt=""
-                                style={{
-                                  maxWidth: "150px",
-                                  maxHeight: "150px",
-                                }}
-                              />
-                            </div>
-
+                              {/* 
                             <Dialog
                               open={isPhotoresDialogOpen}
                               onClose={handlePhotoCloseDialog}
@@ -1716,27 +1860,34 @@ const [image, setImage] = useState("");
                                       const file = e.target.files[0];
                                       fileData(e.target.files[0]);
                                       // Update property_image field in Formik
-                                      rentalsFormik.setFieldValue(
-                                        "propertyres_image",
-                                        file
-                                      );
+                                      // rentalsFormik.setFieldValue(
+                                      //   "propertyres_image",
+                                      //   file
+                                      // );
+
 
                                       // Update the selected photo preview
-                                      const selectedPhotoPreview1 =
-                                        document.getElementById(
-                                          "selectedPhotoPreview1"
-                                        );
+                                      // const selectedPhotoPreview1 =
+                                      //   document.getElementById(
+                                      //     "selectedPhotoPreview1"
+                                      //   );
                                       if (file) {
                                         const imageUrl =
                                           URL.createObjectURL(file);
-                                        selectedPhotoPreview1.src = imageUrl;
+                                          rentalsFormik.setFieldValue(
+                                            "propertyres_image",imageUrl
+                                          )
+                                        // selectedPhotoPreview1.src = imageUrl;
                                       } else {
-                                        selectedPhotoPreview1.src = "";
+                                        // selectedPhotoPreview1.src = "";
+                                        rentalsFormik.setFieldValue(
+                                          "propertyres_image",""
+                                        )
                                       }
                                     }}
-                                  />
+                                  /> */}
 
-                                  {/* <input
+                              {/* <input
                                   type="file"
                                   className="form-control-file d-block"
                                   accept="image/*"
@@ -1750,7 +1901,7 @@ const [image, setImage] = useState("");
                                       {rentalsFormik.errors.propertyres_image}
                                     </div>
                                   ) : null} */}
-                                </div>
+                              {/* </div>
                               </DialogContent>
                               <DialogActions>
                                 <Button onClick={handlePhotoCloseDialog}>
@@ -1763,9 +1914,9 @@ const [image, setImage] = useState("");
                                   Add
                                 </Button>
                               </DialogActions>
-                            </Dialog>
-                          </FormGroup>
-                          {/* <FormGroup>
+                            </Dialog> */}
+                            </FormGroup>
+                            {/* <FormGroup>
                             <label
                               className="form-control-label"
                               htmlFor="input-unitadd"
@@ -1859,38 +2010,64 @@ const [image, setImage] = useState("");
                             </DialogActions>
                           </Dialog>
                           </FormGroup> */}
-                        </Col>
-                        <Col lg="2">
-                          <FormGroup>
-                            <label
-                              className="form-control-label"
-                              htmlFor="input-unitadd"
-                            >
-                              SQFT
-                            </label>
-                            <Input
-                              className="form-control-alternative"
-                              id="input-unitadd"
-                              placeholder="3000"
-                              type="number"
-                              name="rental_soft"
-                              onBlur={rentalsFormik.handleBlur}
-                              onChange={rentalsFormik.handleChange}
-                              value={rentalsFormik.values.rental_soft}
-                            />
-                            {rentalsFormik.touched.rental_soft &&
-                            rentalsFormik.errors.rental_soft ? (
-                              <div style={{ color: "red" }}>
-                                {rentalsFormik.errors.rental_soft}
-                              </div>
-                            ) : null}
-                          </FormGroup>
-                        </Col>
+                          </Col>
 
-                        {/* <Col xs="8">
+                          <div
+                            className="mt-3 d-flex"
+                            style={{
+                              justifyContent: "center",
+                              flexWrap: "wrap", // Allow images to wrap to the next row
+                            }}
+                          >
+                            {residentialImage &&
+                              residentialImage.length > 0 &&
+                              residentialImage.map((residentialImage) => (
+                                <div
+                                  key={residentialImage}
+                                  style={{
+                                    position: "relative",
+                                    width: "100px",
+                                    height: "100px",
+                                    margin: "10px",
+                                    display: "flex",
+                                    flexDirection: "column",
+                                  }}
+                                >
+                                  <img
+                                    src={residentialImage}
+                                    alt=""
+                                    style={{
+                                      width: "100px",
+                                      height: "100px",
+                                      maxHeight: "100%",
+                                      maxWidth: "100%",
+                                      borderRadius: "10px",
+                                      // objectFit: "cover",
+                                    }}
+                                  />
+                                  <ClearIcon
+                                    style={{
+                                      cursor: "pointer",
+                                      alignSelf: "flex-start",
+                                      position: "absolute",
+                                      top: "-12px",
+                                      right: "-12px",
+                                    }}
+                                    onClick={() =>
+                                      clearSelectedPhoto(
+                                        residentialImage,
+                                        "propertyres_image"
+                                      )
+                                    }
+                                  />
+                                </div>
+                              ))}
+                          </div>
+
+                          {/* <Col xs="8">
                         <h3 className="mb-0">New Property</h3>
                         </Col> */}
-                        {/* <Col className="text-right" xs="4">
+                          {/* <Col className="text-right" xs="4">
                         <Button
                             color="primary"
                             href="#pablo"
@@ -1900,98 +2077,168 @@ const [image, setImage] = useState("");
                             Add Lease
                         </Button>
                         </Col> */}
-                      </Row>
-                    </FormGroup>
-                  </div>
+                        </Row>
+                      </FormGroup>
+                    </div>
+                  )}
+                  {console.log(propType, "propType")}
+                  {propType === "Commercial" && (
+                    <div className="pl-lg-4">
+                      <h6 className="heading-small text-muted mb-4">
+                        Commercial Unit
+                      </h6>
+                      <FormGroup>
+                        <label
+                          className="form-control-label"
+                          htmlFor="input-address"
+                        >
+                          Enter Commercial Units
+                        </label>
+                        <br />
+                        <br />
+                        <Row>
+                          <Col lg="2">
+                            <FormGroup>
+                              <label
+                                className="form-control-label"
+                                htmlFor="input-city"
+                              >
+                                Units *
+                              </label>
+                              <Input
+                                className="form-control-alternative"
+                                id="input-unit"
+                                placeholder="102"
+                                type="number"
+                                name="rentalcom_units"
+                                onBlur={rentalsFormik.handleBlur}
+                                onChange={rentalsFormik.handleChange}
+                                value={rentalsFormik.values.rentalcom_units}
+                              />
+                              {rentalsFormik.touched.rentalcom_units &&
+                              rentalsFormik.errors.rentalcom_units ? (
+                                <div style={{ color: "red" }}>
+                                  {rentalsFormik.errors.rentalcom_units}
+                                </div>
+                              ) : null}
+                            </FormGroup>
+                          </Col>
+                          <Col lg="4">
+                            <FormGroup>
+                              <label
+                                className="form-control-label"
+                                htmlFor="input-unitadd"
+                              >
+                                Unit Address *
+                              </label>
+                              <Input
+                                className="form-control-alternative"
+                                id="input-unitadd"
+                                placeholder="A12 Bhaskar Enclave, Phase 2 - 102"
+                                type="text"
+                                name="rentalcom_unitsAdress"
+                                onBlur={rentalsFormik.handleBlur}
+                                onChange={rentalsFormik.handleChange}
+                                value={
+                                  rentalsFormik.values.rentalcom_unitsAdress
+                                }
+                              />
+                              {rentalsFormik.touched.rentalcom_unitsAdress &&
+                              rentalsFormik.errors.rentalcom_unitsAdress ? (
+                                <div style={{ color: "red" }}>
+                                  {rentalsFormik.errors.rentalcom_unitsAdress}
+                                </div>
+                              ) : null}
+                            </FormGroup>
+                          </Col>
+                          <Col lg="2">
+                            <FormGroup>
+                              <label
+                                className="form-control-label"
+                                htmlFor="input-unitadd"
+                              >
+                                SQFT
+                              </label>
+                              <Input
+                                className="form-control-alternative"
+                                id="input-unitadd"
+                                placeholder="3000"
+                                type="number"
+                                name="rentalcom_soft"
+                                onBlur={rentalsFormik.handleBlur}
+                                onChange={rentalsFormik.handleChange}
+                                value={rentalsFormik.values.rentalcom_soft}
+                              />
+                              {rentalsFormik.touched.rentalcom_soft &&
+                              rentalsFormik.errors.rentalcom_soft ? (
+                                <div style={{ color: "red" }}>
+                                  {rentalsFormik.errors.rentalcom_soft}
+                                </div>
+                              ) : null}
+                            </FormGroup>
+                          </Col>
+                          <Col lg="4"></Col>
+                          <Col lg="2">
+                            <FormGroup>
+                              <label
+                                className="form-control-label"
+                                htmlFor="input-unitadd"
+                              >
+                                Photo
+                              </label>
+                              <span
+                                onClick={togglePhotoDialog}
+                                style={{
+                                  cursor: "pointer",
+                                  fontSize: "14px",
+                                  fontFamily: "monospace",
+                                  color: "blue",
+                                }}
+                              >
+                                {" "}
+                                <br />
+                                <input
+                                  type="file"
+                                  className="form-control-file d-none"
+                                  accept="image/*"
+                                  name="property_image"
+                                  multiple
+                                  id="property_image"
+                                  onChange={(e) => {
+                                    const file = [...e.target.files];
+                                    fileData(file, "property_image");
+                                    // Update property_image field in Formik
+                                    // rentalsFormik.setFieldValue(
+                                    //   "property_image",
+                                    //   file
+                                    // );
 
-                  <div className="pl-lg-4">
-                    <h6 className="heading-small text-muted mb-4">
-                      Commercial Unit
-                    </h6>
-                    <FormGroup>
-                      <label
-                        className="form-control-label"
-                        htmlFor="input-address"
-                      >
-                        Enter Commercial Units
-                      </label>
-                      <br />
-                      <br />
-                      <Row>
-                        <Col lg="2">
-                          <FormGroup>
-                            <label
-                              className="form-control-label"
-                              htmlFor="input-city"
-                            >
-                              Units *
-                            </label>
-                            <Input
-                              className="form-control-alternative"
-                              id="input-unit"
-                              placeholder="102"
-                              type="number"
-                              name="rentalcom_units"
-                              onBlur={rentalsFormik.handleBlur}
-                              onChange={rentalsFormik.handleChange}
-                              value={rentalsFormik.values.rentalcom_units}
-                            />
-                            {rentalsFormik.touched.rentalcom_units &&
-                            rentalsFormik.errors.rentalcom_units ? (
-                              <div style={{ color: "red" }}>
-                                {rentalsFormik.errors.rentalcom_units}
-                              </div>
-                            ) : null}
-                          </FormGroup>
-                        </Col>
-                        <Col lg="4">
-                          <FormGroup>
-                            <label
-                              className="form-control-label"
-                              htmlFor="input-unitadd"
-                            >
-                              Unit Address *
-                            </label>
-                            <Input
-                              className="form-control-alternative"
-                              id="input-unitadd"
-                              placeholder="A12 Bhaskar Enclave, Phase 2 - 102"
-                              type="text"
-                              name="rentalcom_unitsAdress"
-                              onBlur={rentalsFormik.handleBlur}
-                              onChange={rentalsFormik.handleChange}
-                              value={rentalsFormik.values.rentalcom_unitsAdress}
-                            />
-                            {rentalsFormik.touched.rentalcom_unitsAdress &&
-                            rentalsFormik.errors.rentalcom_unitsAdress ? (
-                              <div style={{ color: "red" }}>
-                                {rentalsFormik.errors.rentalcom_unitsAdress}
-                              </div>
-                            ) : null}
-                          </FormGroup>
-                        </Col>
-                        <Col lg="2">
-                          <FormGroup>
-                            <label
-                              className="form-control-label"
-                              htmlFor="input-unitadd"
-                            >
-                              Photo
-                            </label>
-                            <span
-                              onClick={togglePhotoDialog}
-                              style={{
-                                cursor: "pointer",
-                                fontSize: "14px",
-                                fontFamily: "monospace",
-                                color: "blue",
-                              }}
-                            >
-                              {" "}
-                              <br />
-                              <b style={{ fontSize: "20px" }}>+</b> Add
-                            </span>
-                            {rentalsFormik.values.property_image && (
+                                    // // Update the selected photo preview
+                                    // const selectedPhotoPreview =
+                                    //   document.getElementById(
+                                    //     "selectedPhotoPreview"
+                                    //   );
+                                    if (file) {
+                                      const allImages = file.map((file) => {
+                                        return URL.createObjectURL(file);
+                                      });
+                                      // const imageUrl = URL.createObjectURL(file);
+                                      // rentalsFormik.setFieldValue(
+                                      //   "property_image",
+                                      //   imageUrl
+                                      // );
+                                      setCommercialImage(allImages);
+                                      // selectedPhotoPreview.src = imageUrl;
+                                    } else {
+                                      setCommercialImage([]);
+                                    }
+                                  }}
+                                />
+                                <label htmlFor="property_image">
+                                  <b style={{ fontSize: "20px" }}>+</b> Add
+                                </label>
+                              </span>
+                              {/* {rentalsFormik.values.property_image && (
                               // <span
                               //   onClick={clearSelectedPhoto}
                               //   style={{
@@ -2010,21 +2257,26 @@ const [image, setImage] = useState("");
                                 alt="Property Details"
                                 style={{ maxWidth: "8rem", margin: "10px" }}
                               />
-                            )}
+                            )} */}
 
-                            <div className="mt-3">
-                              <img
-                                id="selectedPhotoPreview"
-                                src=""
-                                alt=""
-                                style={{
-                                  maxWidth: "150px",
-                                  maxHeight: "150px",
-                                }}
-                              />
-                            </div>
+                              {/* <div className="mt-3">
+                              {commercialImage &&
+                                commercialImage?.length > 0 &&
+                                commercialImage?.map((item, index) => (
+                                  <img
+                                    id="selectedPhotoPreview"
+                                    src={item}
+                                    key={index}
+                                    alt=""
+                                    style={{
+                                      maxWidth: "150px",
+                                      maxHeight: "150px",
+                                    }}
+                                  />
+                                ))}
+                            </div> */}
 
-                            <Dialog
+                              {/* <Dialog
                               open={isPhotoDialogOpen}
                               onClose={handlePhotoCloseDialog}
                             >
@@ -2065,9 +2317,9 @@ const [image, setImage] = useState("");
                                         selectedPhotoPreview.src = "";
                                       }
                                     }}
-                                  />
+                                  /> */}
 
-                                  {/* <input
+                              {/* <input
                                   type="file"
                                   className="form-control-file d-block"
                                   accept="image/*"
@@ -2081,7 +2333,7 @@ const [image, setImage] = useState("");
                                       {rentalsFormik.errors.propertyres_image}
                                     </div>
                                   ) : null} */}
-                                </div>
+                              {/* </div>
                               </DialogContent>
                               <DialogActions>
                                 <Button onClick={handlePhotoCloseDialog}>
@@ -2094,39 +2346,66 @@ const [image, setImage] = useState("");
                                   Add
                                 </Button>
                               </DialogActions>
-                            </Dialog>
-                          </FormGroup>
-                        </Col>
-                        <Col lg="2">
-                          <FormGroup>
-                            <label
-                              className="form-control-label"
-                              htmlFor="input-unitadd"
-                            >
-                              SQFT
-                            </label>
-                            <Input
-                              className="form-control-alternative"
-                              id="input-unitadd"
-                              placeholder="3000"
-                              type="number"
-                              name="rentalcom_soft"
-                              onBlur={rentalsFormik.handleBlur}
-                              onChange={rentalsFormik.handleChange}
-                              value={rentalsFormik.values.rentalcom_soft}
-                            />
-                            {rentalsFormik.touched.rentalcom_soft &&
-                            rentalsFormik.errors.rentalcom_soft ? (
-                              <div style={{ color: "red" }}>
-                                {rentalsFormik.errors.rentalcom_soft}
-                              </div>
-                            ) : null}
-                          </FormGroup>
-                        </Col>
-                      </Row>
-                    </FormGroup>
-                  </div>
+                            </Dialog> */}
+                            </FormGroup>
+                          </Col>
 
+                          <div
+                            className="mt-3 d-flex"
+                            style={{
+                              justifyContent: "center",
+                              flexWrap: "wrap", // Allow images to wrap to the next row
+                            }}
+                          >
+                            {commercialImage &&
+                              commercialImage.length > 0 &&
+                              commercialImage.map((commercialImage) => (
+                                <div
+                                  key={commercialImage}
+                                  style={{
+                                    position: "relative",
+                                    width: "100px",
+                                    height: "100px",
+                                    margin: "10px",
+                                    display: "flex",
+                                    flexDirection: "column",
+                                  }}
+                                >
+                                  <img
+                                    src={commercialImage}
+                                    alt=""
+                                    style={{
+                                      width: "100px",
+                                      height: "100px",
+                                      maxHeight: "100%",
+                                      maxWidth: "100%",
+                                      borderRadius: "10px",
+
+                                      // objectFit: "cover",
+                                    }}
+                                  />
+                                  <ClearIcon
+                                    style={{
+                                      cursor: "pointer",
+                                      alignSelf: "flex-start",
+                                      position: "absolute",
+                                      top: "-12px",
+                                      right: "-12px",
+                                    }}
+                                    onClick={() =>
+                                      clearSelectedPhoto(
+                                        commercialImage,
+                                        "property_image"
+                                      )
+                                    }
+                                  />
+                                </div>
+                              ))}
+                          </div>
+                        </Row>
+                      </FormGroup>
+                    </div>
+                  )}
                   <br />
                   <br />
 
